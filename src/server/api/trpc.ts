@@ -6,8 +6,12 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
+import { type CreateAWSLambdaContextOptions } from "@trpc/server/adapters/aws-lambda";
+import {
+  type APIGatewayProxyEvent,
+  type APIGatewayProxyEventV2,
+} from "aws-lambda";
 import { initTRPC } from "@trpc/server";
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -21,33 +25,40 @@ import { db } from "~/server/db";
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
 
-type CreateContextOptions = Record<string, never>;
+// type CreateContextOptions = Record<string, never>;
 
 /**
- * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
- * it from here.
- *
- * Examples of things you may need it for:
- * - testing, so we don't have to mock Next.js' req/res
- * - tRPC's `createSSGHelpers`, where we don't have req/res
- *
- * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
+ * No need of Nextjs context beacuse of hosting on aws lambda
+ * 
+ *You can use below code for Next js context 
+   @example
+ * export const createTRPCContext = (_opts: CreateNextContextOptions) => {
+  return createInnerTRPCContext({});
+};
+ * 
+ * 
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+export const createTRPCContext = (
+  opts: CreateAWSLambdaContextOptions<
+    APIGatewayProxyEvent | APIGatewayProxyEventV2
+  >,
+) => {
   return {
-    db,
+    db, // Your database client (e.g., Prisma)
+    event: opts.event, // AWS Lambda event
+    context: opts.context, // AWS Lambda context
   };
 };
 
-/**
- * This is the actual context you will use in your router. It will be used to process every request
- * that goes through your tRPC endpoint.
- *
- * @see https://trpc.io/docs/context
- */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
-};
+// /**
+//  * This is the actual context you will use in your router. It will be used to process every request
+//  * that goes through your tRPC endpoint.
+//  *
+//  * @see https://trpc.io/docs/context
+//  */
+// export const createTRPCContext = (_opts: CreateNextContextOptions) => {
+//   return createInnerTRPCContext({});
+// };
 
 /**
  * 2. INITIALIZATION
