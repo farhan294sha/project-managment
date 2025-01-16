@@ -11,21 +11,11 @@ import {
   type APIGatewayProxyEvent,
   type APIGatewayProxyEventV2,
 } from "aws-lambda";
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
 import { db } from "~/server/db";
-
-/**
- * 1. CONTEXT
- *
- * This section defines the "contexts" that are available in the backend API.
- *
- * These allow you to access things when processing a request, like the database, the session, etc.
- */
-
-// type CreateContextOptions = Record<string, never>;
+import jwt from "jsonwebtoken";
 
 /**
  * No need of Nextjs context beacuse of hosting on aws lambda
@@ -38,15 +28,38 @@ import { db } from "~/server/db";
  * 
  * 
  */
-export const createTRPCContext = (
+export const createTRPCContext = async (
   opts: CreateAWSLambdaContextOptions<
     APIGatewayProxyEvent | APIGatewayProxyEventV2
   >,
 ) => {
+  if (!opts) {
+    //FIXME: if server-side req its not handiled by lambda (handle by nextjs need to handle nextjs way)
+    return {
+      db,
+      event: {},
+      context: { token: null },
+    };
+  }
+  const authHeader =
+    opts.event.headers?.authorization ?? opts.event.headers?.Authorization;
+
+  console.log("auth headers", authHeader);
+
+  let token: string | null = null;
+
+  if (authHeader?.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1] ?? null;
+  }
+  console.log("Token: ", token);
+
   return {
-    db, // Your database client (e.g., Prisma)
+    db,
     event: opts.event, // AWS Lambda event
-    context: opts.context, // AWS Lambda context
+    context: {
+      ...opts.context,
+      token,
+    },
   };
 };
 
@@ -112,11 +125,11 @@ export const createTRPCRouter = t.router;
 const timingMiddleware = t.middleware(async ({ next, path }) => {
   const start = Date.now();
 
-  if (t._config.isDev) {
-    // artificial delay in dev
-    const waitMs = Math.floor(Math.random() * 400) + 100;
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
-  }
+  //   if (t._config.isDev) {
+  //     // artificial delay in dev
+  //     const waitMs = Math.floor(Math.random() * 400) + 100;
+  //     await new Promise((resolve) => setTimeout(resolve, waitMs));
+  //   }
 
   const result = await next();
 
@@ -124,6 +137,42 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
 
   return result;
+});
+/**
+ * Protected (authenticated) procedure
+ *
+ * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
+ * the session is valid and guarantees `ctx.user` is not null.
+ */
+export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  if (!ctx.context.token) {
+    console.log("reached cheak for token");
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const decoded = jwt.verify(
+      ctx.context.token,
+      process.env.NEXTAUTH_SECRET!,
+    ) as { id: string };
+    if (typeof decoded !== "object" || !decoded?.id) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Invalid token payload",
+      });
+    }
+    console.log("decoded value", decoded);
+
+    return next({
+      ctx: {
+        ...ctx,
+        user: decoded,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error) throw new TRPCError({ code: "UNAUTHORIZED" });
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+  }
 });
 
 /**

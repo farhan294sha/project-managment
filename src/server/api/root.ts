@@ -3,9 +3,13 @@ import {
   createCallerFactory,
   createTRPCContext,
   createTRPCRouter,
-  publicProcedure,
+  protectedProcedure,
 } from "~/server/api/trpc";
-import { awsLambdaRequestHandler } from "@trpc/server/adapters/aws-lambda";
+import {
+  awsLambdaRequestHandler,
+  type CreateAWSLambdaContextOptions,
+} from "@trpc/server/adapters/aws-lambda";
+import { type LambdaEvent } from "node_modules/@trpc/server/dist/adapters/aws-lambda/getPlanner";
 
 /**
  * This is the primary router for your server.
@@ -14,20 +18,24 @@ import { awsLambdaRequestHandler } from "@trpc/server/adapters/aws-lambda";
  */
 export const appRouter = createTRPCRouter({
   post: postRouter,
-  test: publicProcedure.query(() => {
-    return { message: "working" };
+  testProtected: protectedProcedure.query(({ ctx }) => {
+    return { message: ctx.user.id };
   }),
 });
 
+let lambdaopts: CreateAWSLambdaContextOptions<LambdaEvent>;
 // export type definition of API
 export type AppRouter = typeof appRouter;
-
+// lambda handiler
 export const handler = awsLambdaRequestHandler({
   router: appRouter,
-  createContext: createTRPCContext,
+  createContext: (opts) => {
+    // TODO: Need better way to handle context
+    lambdaopts = opts;
+    return createTRPCContext(opts);
+  },
   onError: ({ error }) => {
     // Log the error for debugging
-    console.error("tRPC Error:", error);
 
     // Generic error response
     return {
@@ -52,4 +60,11 @@ export const handler = awsLambdaRequestHandler({
  * const res = await trpc.post.all();
  *       ^? Post[]
  */
-export const createCaller = createCallerFactory(appRouter);
+const createCaller = createCallerFactory(appRouter);
+
+// Create a server-side caller with the correct context
+export const strpc = createCaller(async () => {
+  // undefined lambda is handeld on the function
+  // just
+  return await createTRPCContext(lambdaopts);
+});

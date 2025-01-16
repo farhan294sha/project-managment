@@ -13,12 +13,28 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "GITHUB_ID": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "GITHUB_SECRET": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "MyVpc": {
       "type": "sst.aws.Vpc"
     }
     "MyWeb": {
       "type": "sst.aws.Nextjs"
       "url": string
+    }
+    "NEXTAUTH_SECRET": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "NEXTAUTH_URL": {
+      "type": "sst.sst.Secret"
+      "value": string
     }
     "Trpc": {
       "name": string

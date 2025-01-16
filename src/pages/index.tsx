@@ -1,9 +1,13 @@
 import Head from "next/head";
 import Link from "next/link";
 import { trpc } from "../utils/trpc";
+import { useSession, signIn } from "next-auth/react";
 
 export default function Home() {
   const hello = trpc.post.hello.useQuery({ text: "hello" });
+  const user = trpc.testProtected.useQuery();
+
+  const { data: session } = useSession();
 
   return (
     <>
@@ -41,10 +45,13 @@ export default function Home() {
               </div>
             </Link>
           </div>
-          <p className="text-2xl text-white">
+          <p className="flex flex-col gap-4 text-2xl text-white">
             {hello.data ? hello.data.greeting : "Loading tRPC query..."}
+            {session?.user?.email}
           </p>
         </div>
+        <div>{user.data?.message}</div>
+        <button onClick={() => signIn("github")}>sign in with git hub</button>
       </main>
     </>
   );
