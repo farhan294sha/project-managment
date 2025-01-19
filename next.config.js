@@ -17,17 +17,6 @@ const config = {
     defaultLocale: "en",
   },
   transpilePackages: ["geist"],
-
-  // Add the rewrites function here
-  async rewrites() {
-    return [
-      {
-        source: "/api/trpc/:path*", // Match all requests to /api/trpc
-        destination:
-          "https://g2uucgoiwkqlpmctmq2vwmnv3e0vfted.lambda-url.ap-south-1.on.aws/:path*", // Forward to your backend
-      },
-    ];
-  },
 };
 
 export default config;

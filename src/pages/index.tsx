@@ -1,13 +1,13 @@
 import Head from "next/head";
 import Link from "next/link";
-import { trpc } from "../utils/trpc";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { Button } from "~/components/ui/button";
+import Router from "next/router";
+import { api } from "~/utils/api";
 
 export default function Home() {
-  const hello = trpc.post.hello.useQuery({ text: "hello" });
-  const user = trpc.testProtected.useQuery();
-
   const { data: session } = useSession();
+  const { data: hellodata, error } = api.hello.useQuery("hi");
 
   return (
     <>
@@ -46,12 +46,19 @@ export default function Home() {
             </Link>
           </div>
           <p className="flex flex-col gap-4 text-2xl text-white">
-            {hello.data ? hello.data.greeting : "Loading tRPC query..."}
             {session?.user?.email}
           </p>
         </div>
-        <div>{user.data?.message}</div>
-        <button onClick={() => signIn("github")}>sign in with git hub</button>
+        <div className="text-red">{error?.message}</div>
+
+        {hellodata?.text}
+        <Button
+          size="lg"
+          variant="secondary"
+          onClick={() => Router.push("/auth/signup")}
+        >
+          Getting Started
+        </Button>
       </main>
     </>
   );

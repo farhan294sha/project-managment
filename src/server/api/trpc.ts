@@ -6,72 +6,34 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { type CreateAWSLambdaContextOptions } from "@trpc/server/adapters/aws-lambda";
-import {
-  type APIGatewayProxyEvent,
-  type APIGatewayProxyEventV2,
-} from "aws-lambda";
+
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { db } from "~/server/db";
-import jwt from "jsonwebtoken";
+import { AuthOptions, getServerSession, type Session } from "next-auth";
+import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { authOptions } from "~/pages/api/auth/[...nextauth]";
 
-/**
- * No need of Nextjs context beacuse of hosting on aws lambda
- * 
- *You can use below code for Next js context 
-   @example
- * export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
-};
- * 
- * 
- */
-export const createTRPCContext = async (
-  opts: CreateAWSLambdaContextOptions<
-    APIGatewayProxyEvent | APIGatewayProxyEventV2
-  >,
-) => {
-  if (!opts) {
-    //FIXME: if server-side req its not handiled by lambda (handle by nextjs need to handle nextjs way)
-    return {
-      db,
-      event: {},
-      context: { token: null },
-    };
-  }
-  const authHeader =
-    opts.event.headers?.authorization ?? opts.event.headers?.Authorization;
-
-  console.log("auth headers", authHeader);
-
-  let token: string | null = null;
-
-  if (authHeader?.startsWith("Bearer ")) {
-    token = authHeader.split(" ")[1] ?? null;
-  }
-  console.log("Token: ", token);
-
+interface CreateContextOptions {
+  session: Session | null;
+}
+const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
+    session: opts.session,
     db,
-    event: opts.event, // AWS Lambda event
-    context: {
-      ...opts.context,
-      token,
-    },
   };
 };
 
-// /**
-//  * This is the actual context you will use in your router. It will be used to process every request
-//  * that goes through your tRPC endpoint.
-//  *
-//  * @see https://trpc.io/docs/context
-//  */
-// export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-//   return createInnerTRPCContext({});
-// };
+export const createTRPCContext = async (opts: CreateNextContextOptions) => {
+  // Get the session from the server using the getServerSession wrapper function
+  const { req, res } = opts;
+  const session = await getServerSession(req, res, authOptions);
+
+  return createInnerTRPCContext({
+    session,
+  });
+};
 
 /**
  * 2. INITIALIZATION
@@ -144,37 +106,19 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
  * the session is valid and guarantees `ctx.user` is not null.
  */
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.context.token) {
-    console.log("reached cheak for token");
-    throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const decoded = jwt.verify(
-      ctx.context.token,
-      process.env.NEXTAUTH_SECRET!,
-    ) as { id: string };
-    if (typeof decoded !== "object" || !decoded?.id) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Invalid token payload",
-      });
+export const protectedProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(({ ctx, next }) => {
+    if (!ctx.session || !ctx.session.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
     }
-    console.log("decoded value", decoded);
-
     return next({
       ctx: {
-        ...ctx,
-        user: decoded,
+        // infers the `session` as non-nullable
+        session: { ...ctx.session, user: ctx.session.user },
       },
     });
-  } catch (error) {
-    if (error instanceof Error) throw new TRPCError({ code: "UNAUTHORIZED" });
-    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-  }
-});
-
+  });
 /**
  * Public (unauthenticated) procedure
  *

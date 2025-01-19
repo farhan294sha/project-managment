@@ -1,47 +1,38 @@
 import { GeistSans } from "geist/font/sans";
-import { type AppType } from "next/app";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink } from "@trpc/client";
-import React, { useState } from "react";
-import { getSession, SessionProvider } from "next-auth/react";
-
+import type { AppProps, AppType } from "next/app";
+import React, { type ReactElement, type ReactNode } from "react";
+import { SessionProvider } from "next-auth/react";
 import "~/styles/globals.css";
-import { trpc } from "../utils/trpc";
-import superjson from "superjson";
-import { type Session } from "next-auth";
+import type { DefaultSession, Session } from "next-auth";
+import type { NextPage } from "next";
+import { api } from "~/utils/api";
+
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    token?: string;
+  }
+}
+
+export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps<{ session: Session | null }> & {
+  Component: NextPageWithLayout;
+};
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
-}) => {
-  const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: "/api/trpc",
-          transformer: superjson,
-          async headers() {
-            const session = await getSession();
-            return {
-              Authorization: `Bearer ${session?.token}`,
-            };
-          },
-        }),
-      ],
-    }),
-  );
+}: AppPropsWithLayout) => {
+  const getLayout = Component.getLayout ?? ((page) => page);
   return (
     <SessionProvider session={session}>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <QueryClientProvider client={queryClient}>
-          <div className={GeistSans.className}>
-            <Component {...pageProps} />
-          </div>
-        </QueryClientProvider>
-      </trpc.Provider>
+      <div className={GeistSans.className}>
+        {getLayout(<Component {...pageProps} />)}
+      </div>
     </SessionProvider>
   );
 };
 
-export default MyApp;
+export default api.withTRPC(MyApp);

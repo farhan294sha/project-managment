@@ -51,3 +51,5 @@ yarn-error.log*
 
 # open-next
 .open-next
+
+.aws-sam

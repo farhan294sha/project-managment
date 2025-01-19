@@ -5,8 +5,10 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "~/server/db";
 import { type DefaultSession } from "next-auth";
 import jwt from "jsonwebtoken";
-import { strpc } from "~/server/api/root";
+import { TRPCError } from "@trpc/server";
+import { trpc } from "~/server/api/root";
 // extend id in userfeild
+
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user?: {
@@ -15,7 +17,7 @@ declare module "next-auth" {
     token?: string;
   }
 }
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
   adapter: PrismaAdapter(db),
   providers: [
@@ -30,30 +32,22 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
-        }
-
         try {
-          // Call the stRPC login Server-side calls
-          const user = await strpc.post.login({
-            email: credentials.email,
-            password: credentials.password
-          });
-
-          // If the mutation is successful, return the user object
-          if (user) {
-            return {
-              id: user.id, 
-              email: user.email,
-              name: user.name,
-            };
-          } else {
-            throw new Error("Invalid email or password");
+          if (!credentials?.email || !credentials?.password) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "email and password required",
+            });
           }
+          return trpc.post.signin({
+            email: credentials?.email,
+            password: credentials?.password,
+          });
         } catch (error) {
-          console.error("Login error:", error);
-          throw new Error("Failed to log in");
+          if (error instanceof TRPCError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Something went worng");
         }
       },
     }),
@@ -70,6 +64,19 @@ export const authOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      console.log("URL:", url); // Debug the URL
+      console.log("Base URL:", baseUrl); // Debug the base URL
+
+      // Allow the callbackUrl to be used if it's valid
+      if (url.startsWith(baseUrl)) {
+        if (url.endsWith("/app")) return url;
+        return url;
+      }
+
+      // Default to the base URL (home page) if the URL is invalid
+      return baseUrl;
+    },
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
@@ -94,6 +101,10 @@ export const authOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/auth/signin",
+    newUser: "/auth/signup",
+  },
 } satisfies NextAuthOptions;
 
 export default NextAuth(authOptions);

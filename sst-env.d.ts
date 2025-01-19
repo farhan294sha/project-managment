@@ -5,42 +5,6 @@
 
 declare module "sst" {
   export interface Resource {
-    "DATABASE_URL": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "DIRECT_URL": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "GITHUB_ID": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "GITHUB_SECRET": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "MyVpc": {
-      "type": "sst.aws.Vpc"
-    }
-    "MyWeb": {
-      "type": "sst.aws.Nextjs"
-      "url": string
-    }
-    "NEXTAUTH_SECRET": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "NEXTAUTH_URL": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "Trpc": {
-      "name": string
-      "type": "sst.aws.Function"
-      "url": string
-    }
   }
 }
 /// <reference path="sst-env.d.ts" />
