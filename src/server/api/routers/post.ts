@@ -1,7 +1,10 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 const signupSchema = z.object({
   name: z.string(),
@@ -92,4 +95,6 @@ export const postRouter = createTRPCRouter({
         name: user.name,
       };
     }),
+
+  
 });

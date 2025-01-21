@@ -6,14 +6,18 @@ import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { MoreHorizontal, MessageCircle, File } from "lucide-react";
 import Image from "next/image";
 import { AvatarGroup } from "./avatar-group";
+import { TaskPriority, TaskStatus } from "@prisma/client";
 export type Task = {
   id: string;
   title: string;
-  priority: "Low" | "Medium" | "High";
+  priority: TaskPriority;
   imageUrls: string[];
-  assignees: { avatar: string }[];
-  comments: number;
-  files: number;
+  status: TaskStatus;
+  assignedTo: { image: string | null }[];
+  _count: {
+    comments: number;
+    files: number;
+  };
 };
 
 type TaskCardProps = Task;

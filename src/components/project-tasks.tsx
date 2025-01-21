@@ -1,9 +1,11 @@
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type Task } from "./task-card";
 import { TaskSection } from "./task-section";
 
-const ProjectTasks = () => {
+const ProjectTasks = ({ projectId }: { projectId: string }) => {
+  //   const taskss = api.project.getTask.useQuery({ projectId });
+
   const [tasks, setTasks] = useState<{
     todo: Task[];
     onProgress: Task[];
@@ -14,35 +16,45 @@ const ProjectTasks = () => {
         id: "1",
         title: "Design New UI",
         priority: "High",
+        status: "Completed",
         imageUrls: ["/task-image.jpg"],
-        assignees: [{ avatar: "/placeholder.svg" }],
-        comments: 5,
-        files: 3,
+        assignedTo: [{ image: "/avatar.svg" }],
+        _count: {
+          comments: 5,
+          files: 4,
+        },
       },
       {
-        id: "3",
+        id: "1",
         title: "Design New UI",
         priority: "High",
+        status: "Completed",
         imageUrls: ["/task-image.jpg"],
-        assignees: [{ avatar: "/placeholder.svg" }],
-        comments: 5,
-        files: 3,
+        assignedTo: [{ image: "/avatar.svg" }],
+        _count: {
+          comments: 5,
+          files: 4,
+        },
       },
     ],
     onProgress: [
       {
-        id: "2",
-        title: "Onboarding Illustrations",
-        priority: "Low",
+        id: "1",
+        title: "Design New UI",
+        priority: "High",
+        status: "Completed",
         imageUrls: ["/task-image.jpg"],
-        assignees: [{ avatar: "/placeholder.svg" }],
-        comments: 14,
-        files: 15,
+        assignedTo: [{ image: "/avatar.svg" }],
+        _count: {
+          comments: 5,
+          files: 4,
+        },
       },
     ],
     done: [],
   });
 
+  useEffect(() => {}, []);
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -79,7 +91,9 @@ const ProjectTasks = () => {
       }
     }
   };
-
+  if (projectId === "NONE") {
+    return null;
+  }
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="row-span-3">

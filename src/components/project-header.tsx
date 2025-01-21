@@ -18,7 +18,14 @@ const assignees = [
   { avatar: "/avatar.jpg" },
   { avatar: "/avatar.jpg" },
 ];
-const ProjectHeader = () => {
+type ProjectHeaderProps = {
+  projectId: string;
+};
+const ProjectHeader = ({ projectId }: ProjectHeaderProps) => {
+  if (projectId === "NONE") {
+    // TODO implement create project
+    return <div>Create new project</div>;
+  }
   return (
     <div className="flex h-full justify-between pt-6">
       <div className="">

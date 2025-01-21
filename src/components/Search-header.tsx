@@ -2,9 +2,9 @@
 
 import { Search } from "lucide-react";
 import { Input } from "~/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Bell, Calendar, MessageCircle } from "lucide-react";
+import UserInfo from "./header-user-info";
 
 export default function SearchHeader() {
   return (
@@ -34,17 +34,7 @@ export default function SearchHeader() {
         <Button variant="ghost" size="icon">
           <Bell className="h-5 w-5 text-muted-foreground" />
         </Button>
-
-        <div className="flex items-center gap-3 pl-2">
-          <div className="text-right">
-            <p className="text-sm font-medium">Anima Agrawal</p>
-            <p className="text-xs text-muted-foreground">U.P, India</p>
-          </div>
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatar.jpg" alt="Profile picture" />
-            <AvatarFallback>AA</AvatarFallback>
-          </Avatar>
-        </div>
+        <UserInfo />
       </div>
     </div>
   );

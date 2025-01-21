@@ -1,4 +1,5 @@
 import { TRPCClientError } from "@trpc/client";
+import { TRPCError } from "@trpc/server";
 import { type AppRouter } from "~/server/api/root";
 
 export function isTRPCClientError(

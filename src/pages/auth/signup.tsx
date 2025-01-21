@@ -91,7 +91,7 @@ export default function SignUp() {
                 variant="outline"
                 className="w-full justify-center space-x-2"
                 onClick={async () => {
-                  await signIn("github", { callbackUrl: "/app" });
+                  await signIn("github", { callbackUrl: "/app/projects" });
                 }}
               >
                 <Image

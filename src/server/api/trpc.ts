@@ -11,7 +11,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { db } from "~/server/db";
-import { AuthOptions, getServerSession, type Session } from "next-auth";
+import { getServerSession, type Session } from "next-auth";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { authOptions } from "~/pages/api/auth/[...nextauth]";
 
@@ -112,6 +112,7 @@ export const protectedProcedure = t.procedure
     if (!ctx.session || !ctx.session.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
+
     return next({
       ctx: {
         // infers the `session` as non-nullable

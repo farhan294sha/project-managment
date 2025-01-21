@@ -9,16 +9,15 @@ export default createNextApiHandler({
   createContext: createTRPCContext,
   onError: ({ error }) => {
     // Log the error for debugging
+
     // Handle TRPCClientError
     if (error instanceof TRPCClientError) {
       return {
-        statusCode: 400, // Bad Request or customize based on error.code
+        statusCode: 400,
         body: JSON.stringify({
           message: error.message,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           code: error.data?.code || "BAD_REQUEST",
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          zodError: error.data?.zodError, // Include Zod validation errors if present
+          zodError: error.data?.zodError,
         }),
       };
     }

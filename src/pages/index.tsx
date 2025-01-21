@@ -3,11 +3,9 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Button } from "~/components/ui/button";
 import Router from "next/router";
-import { api } from "~/utils/api";
 
 export default function Home() {
   const { data: session } = useSession();
-  const { data: hellodata, error } = api.hello.useQuery("hi");
 
   return (
     <>
@@ -49,9 +47,7 @@ export default function Home() {
             {session?.user?.email}
           </p>
         </div>
-        <div className="text-red">{error?.message}</div>
 
-        {hellodata?.text}
         <Button
           size="lg"
           variant="secondary"

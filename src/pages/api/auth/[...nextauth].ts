@@ -4,7 +4,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "~/server/db";
 import { type DefaultSession } from "next-auth";
-import jwt from "jsonwebtoken";
 import { TRPCError } from "@trpc/server";
 import { trpc } from "~/server/api/root";
 // extend id in userfeild
@@ -14,7 +13,6 @@ declare module "next-auth" {
     user?: {
       id: string;
     } & DefaultSession["user"];
-    token?: string;
   }
 }
 export const authOptions: NextAuthOptions = {
@@ -64,39 +62,24 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      console.log("URL:", url); // Debug the URL
-      console.log("Base URL:", baseUrl); // Debug the base URL
-
-      // Allow the callbackUrl to be used if it's valid
-      if (url.startsWith(baseUrl)) {
-        if (url.endsWith("/app")) return url;
-        return url;
-      }
-
-      // Default to the base URL (home page) if the URL is invalid
-      return baseUrl;
-    },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
+      // Add the user ID to the token when the user signs in
       if (user) {
-        token.id = user.id;
+        token.userId = user.id; // Assuming `user.id` contains the user ID
       }
-      if (account?.access_token) {
-        token.accessToken = account.access_token;
-      }
-      if (token.accessToken === undefined) {
-        // For providing auth for trpc server later passed using Bearer
-        token.accessToken = jwt.sign(token, process.env.NEXTAUTH_SECRET!);
-      }
-
       return token;
+    },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
+        session.user.id = token.userId as string;
       }
-      // Need to access jwt using useSession()
-      session.token = token.accessToken as string;
       return session;
     },
   },
