@@ -28,9 +28,14 @@ const MyApp: AppType<{ session: Session | null }> = ({
   const getLayout = Component.getLayout ?? ((page) => page);
   return (
     <SessionProvider session={session}>
-      <div className={GeistSans.className}>
+      <style jsx global>{`
+        html {
+          font-family: ${GeistSans.style.fontFamily}; // for dalog box
+        }
+      `}</style>
+      <main className={GeistSans.className}>
         {getLayout(<Component {...pageProps} />)}
-      </div>
+      </main>
     </SessionProvider>
   );
 };

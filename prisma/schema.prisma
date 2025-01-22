@@ -17,17 +17,15 @@ enum TaskPriority {
 // Generator and datasource configurations
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url       = env("DATABASE_URL_DEV")
+//   directUrl = env("DIRECT_URL")
 }
 
 // Model definitions
-
 model User {
   id            String   @id @default(cuid())
   name          String?

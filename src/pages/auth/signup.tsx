@@ -35,7 +35,6 @@ export default function SignUp() {
       if (result?.error) {
         setError(result?.error);
       }
-      await router.push("/auth/signin");
     },
     onError(error) {
       if (isTRPCClientError(error)) {

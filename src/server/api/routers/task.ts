@@ -10,7 +10,7 @@ const createTaskSchema = z.object({
   memberEmails: z.array(z.string().email()).optional(),
 });
 const assignMemberSchema = z.object({
-  taskId: z.string().min(1, 'Task ID is required'), // Required task ID
+  taskId: z.string().min(1, "Task ID is required"), // Required task ID
   memberEmails: z.array(z.string().email()), // Array of user emails to assign
 });
 
@@ -85,15 +85,15 @@ export const taskRouter = createTRPCRouter({
       const { taskId, memberEmails } = input;
 
       const task = await ctx.db.task.findUnique({
-        where: { id: taskId },select: {
-            id:true
-        }
+        where: { id: taskId },
+        select: {
+          id: true,
+        },
       });
 
       if (!task) {
         throw new Error("Task not found");
       }
-
 
       const users = await ctx.db.user.findMany({
         where: { email: { in: memberEmails } },
@@ -109,12 +109,11 @@ export const taskRouter = createTRPCRouter({
         );
       }
 
-      
       const updatedTask = await ctx.db.task.update({
         where: { id: taskId },
         data: {
           assignedTo: {
-            connect: users.map((user) => ({ id: user.id })), 
+            connect: users.map((user) => ({ id: user.id })),
           },
         },
         include: {
@@ -123,7 +122,7 @@ export const taskRouter = createTRPCRouter({
               id: true,
               name: true,
               email: true,
-              image: true
+              image: true,
             },
           },
         },

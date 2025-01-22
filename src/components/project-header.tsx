@@ -9,28 +9,44 @@ import {
 import { Button } from "./ui/button";
 import { AvatarGroup } from "./avatar-group";
 import { Avatar, AvatarImage } from "./ui/avatar";
-const assignees = [
-  { avatar: "/avatar.jpg" },
-  { avatar: "/avatar.jpg" },
-  { avatar: "/avatar.jpg" },
-  { avatar: "/avatar.jpg" },
-  { avatar: "/avatar.jpg" },
-  { avatar: "/avatar.jpg" },
-  { avatar: "/avatar.jpg" },
-];
+import { api } from "~/utils/api";
+import { Skeleton } from "./ui/skeleton";
 type ProjectHeaderProps = {
   projectId: string;
 };
 const ProjectHeader = ({ projectId }: ProjectHeaderProps) => {
-  if (projectId === "NONE") {
-    // TODO implement create project
+  const {
+    data: project,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = api.project.getbyId.useQuery({ id: projectId });
+
+  if (isLoading) {
+    return <Skeleton />;
+  }
+
+  if (isError) {
+    return (
+      <div>
+        Error: {error.message}
+        <Button onClick={() => refetch()}>Retry</Button>
+      </div>
+    );
+  }
+
+  if (!project) {
     return <div>Create new project</div>;
   }
+
   return (
     <div className="flex h-full justify-between pt-6">
       <div className="">
         <div className="flex items-center gap-4">
-          <div className="text-5xl font-semibold">Mobile App</div>
+          <div className="scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl">
+            {project.name}
+          </div>
           <div className="flex items-center gap-4">
             <Button variant="purpleIcon" size="purpleIcon">
               <SquarePen className="h-4 w-4 text-primary/90" />
@@ -62,28 +78,39 @@ const ProjectHeader = ({ projectId }: ProjectHeaderProps) => {
             </Button>
             <div className="font-medium text-primary">Invite</div>
           </div>
-          <AvatarGroup>
-            {assignees.length >= 5 ? (
-              <div className="flex items-center -space-x-2">
-                {assignees.slice(0, 4).map((assignee, index) => (
-                  <Avatar key={index} className="h-8 w-8 border-2 border-white">
-                    <AvatarImage src={assignee.avatar} alt="Assignee" />
+          {project.members.length > 0 && (
+            <AvatarGroup>
+              {project.members.length >= 5 ? (
+                <div className="flex items-center -space-x-2">
+                  {project.members.slice(0, 4).map((assignee, index) => (
+                    <Avatar
+                      key={index}
+                      className="h-8 w-8 border-2 border-white"
+                    >
+                      <AvatarImage
+                        src={assignee.image ?? undefined}
+                        alt="Assignee"
+                      />
+                    </Avatar>
+                  ))}
+                  <Avatar className="flex h-8 w-8 items-center justify-center border-2 border-white bg-gray-200">
+                    <span className="text-sm font-medium text-gray-700">
+                      +{project.members.length - 4}
+                    </span>
                   </Avatar>
-                ))}
-                <Avatar className="flex h-8 w-8 items-center justify-center border-2 border-white bg-gray-200">
-                  <span className="text-sm font-medium text-gray-700">
-                    +{assignees.length - 4}
-                  </span>
-                </Avatar>
-              </div>
-            ) : (
-              assignees.map((assignee, index) => (
-                <Avatar key={index} className="h-8 w-8 border-2 border-white">
-                  <AvatarImage src={assignee.avatar} alt="Assignee" />
-                </Avatar>
-              ))
-            )}
-          </AvatarGroup>
+                </div>
+              ) : (
+                project.members.map((assignee, index) => (
+                  <Avatar key={index} className="h-8 w-8 border-2 border-white">
+                    <AvatarImage
+                      src={assignee.image ?? undefined}
+                      alt="Assignee"
+                    />
+                  </Avatar>
+                ))
+              )}
+            </AvatarGroup>
+          )}
         </div>
       </div>
     </div>

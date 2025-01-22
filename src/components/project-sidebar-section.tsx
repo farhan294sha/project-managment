@@ -1,4 +1,4 @@
-import { Loader2, Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   SidebarGroup,
@@ -9,11 +9,11 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 import { api } from "~/utils/api";
-import { KeyboardEvent, useRef, useState } from "react";
-import { Input } from "./ui/input";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
+import ProjectCreateInput from "./project-create";
 const projectColours = [
   "bg-red-500",
   "bg-blue-500",
@@ -26,39 +26,21 @@ const projectColours = [
   "bg-orange-500",
 ];
 const ProjectSidebarSection = () => {
-  const utils = api.useUtils();
-  const [showInput, setShowInput] = useState(false);
-  const [projectName, setProjectName] = useState("");
-  const [error, setError] = useState("");
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const projects = api.project.getAll.useQuery();
 
-  const createProjectMutation = api.project.create.useMutation({
-    onSuccess: () => {
-      utils.project.getAll.invalidate();
+  const [showInput, setShowInput] = useState(false);
 
-      setProjectName("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-      setShowInput(false);
-    },
-    onError: (error) => {
-      setError(error.message);
-    },
-  });
-
+  const [error, setError] = useState("");
   const handleAddProject = () => {
     setShowInput(true);
     // Focus the input field when it is shown
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      createProjectMutation.mutate({ title: projectName });
-    }
-  };
-
   if (projects.isLoading) {
+    // TODO: Better skeleton
     return <Skeleton className="h-2 w-[70%]" />;
   }
 
@@ -82,28 +64,11 @@ const ProjectSidebarSection = () => {
         {/* TODO: move to seprate components */}
         <SidebarMenu>
           {showInput && (
-            <div className="relative flex">
-              <Input
-                ref={inputRef}
-                onKeyDown={handleKeyDown}
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-                placeholder="Enter your project name"
-              />
-              <Button
-                className="absolute right-0 top-[2px]"
-                variant={"ghost"}
-                size={"sm"}
-                onClick={() => setShowInput(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-              {createProjectMutation.isPending && (
-                <div className="flex items-center">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary/50" />
-                </div>
-              )}
-            </div>
+            <ProjectCreateInput
+              ref={inputRef}
+              setError={setError}
+              setShowInput={setShowInput}
+            />
           )}
           {projects.data &&
             projects.data.map((project) => (

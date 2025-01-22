@@ -12,7 +12,7 @@ import { Loader2 } from "lucide-react";
 import LabeledInput from "~/components/LabeledInput";
 import OrSpan from "~/components/OrSpan";
 
-export default function SignUp() {
+export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

@@ -27,9 +27,8 @@ export function TaskCard({
   title,
   priority,
   imageUrls,
-  assignees,
-  comments,
-  files,
+  assignedTo,
+  _count,
 }: TaskCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id,
@@ -98,22 +97,26 @@ export function TaskCard({
 
       <div className="flex items-center justify-between pt-2">
         <AvatarGroup>
-          {assignees.map((assignee, index) => (
+          {assignedTo.map((assignee, index) => (
             <Avatar key={index} className="h-8 w-8 border-2 border-white">
-              <AvatarImage src={assignee.avatar} alt="Assignee" />
+              <AvatarImage src={assignee.image ?? undefined} alt="Assignee" />
             </Avatar>
           ))}
         </AvatarGroup>
 
         <div className="flex items-center gap-3 text-sm text-gray-500">
-          <div className="flex items-center gap-1">
-            <MessageCircle className="h-4 w-4" />
-            <span>{comments} comments</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <File className="h-4 w-4" />
-            <span>{files} files</span>
-          </div>
+          {_count.comments > 0 && (
+            <div className="flex items-center gap-1">
+              <MessageCircle className="h-4 w-4" />
+              <span>{_count.comments} comments</span>
+            </div>
+          )}
+          {_count.files > 0 && (
+            <div className="flex items-center gap-1">
+              <File className="h-4 w-4" />
+              <span>{_count.files} files</span>
+            </div>
+          )}
         </div>
       </div>
     </Card>

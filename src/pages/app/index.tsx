@@ -14,7 +14,7 @@ const AppPageLayout = ({ children }: { children: ReactNode }) => {
     async function authenticate() {
       if (status === "unauthenticated") {
         await signIn(undefined, {
-          callbackUrl: "/app/projects",
+          callbackUrl: "/app",
         });
       }
     }
