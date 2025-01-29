@@ -11,6 +11,29 @@ export default $config({
     };
   },
   async run() {
+    const bucket = new sst.aws.Bucket("projectManagment", {
+      access: "public",
+      transform: {
+        policy: (args) => {
+          args.policy = sst.aws.iamEdit(args.policy, (policy) => {
+            policy.Statement.push({
+              Effect: "Allow",
+              Action: "s3:PutObject",
+              Principal: "*",
+              Resource: $interpolate`arn:aws:s3:::${args.bucket}/*`,
+            });
+          });
+        },
+      },
+
+      cors: {
+        allowHeaders: ["*"],
+        maxAge: "1 day",
+        allowOrigins: ["http://localhost:3000"],
+        allowMethods: ["PUT", "GET"],
+      },
+    });
+
     const DATABASE_URL = new sst.Secret("DATABASE_URL");
     const DIRECT_URL = new sst.Secret("DIRECT_URL");
     const NEXTAUTH_SECRET = new sst.Secret("NEXTAUTH_SECRET");
@@ -19,6 +42,7 @@ export default $config({
     const GITHUB_SECRET = new sst.Secret("GITHUB_SECRET");
 
     new sst.aws.Nextjs("MyWeb", {
+      link: [bucket],
       environment: {
         NEXTAUTH_SECRET: NEXTAUTH_SECRET.value,
         NEXTAUTH_URL: NEXTAUTH_URL.value,

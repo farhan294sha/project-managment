@@ -201,11 +201,11 @@ export const projectRouter = createTRPCRouter({
         });
 
         const taskByStatus = {
-          todo: filteredImage.filter((task) => task.status === "Pending"),
+          todo: filteredImage.filter((task) => task.status === "Todo"),
           onProgress: filteredImage.filter(
             (task) => task.status === "InProgress",
           ),
-          done: filteredImage.filter((task) => task.status === "Completed"),
+          done: filteredImage.filter((task) => task.status === "Done"),
         };
 
         return taskByStatus;

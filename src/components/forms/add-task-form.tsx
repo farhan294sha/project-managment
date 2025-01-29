@@ -4,7 +4,7 @@ import {
   PopoverContent,
 } from "~/components/ui/popover";
 import { useForm } from "react-hook-form";
-import { CalendarIcon, FlagIcon, Plus } from "lucide-react";
+import { CalendarIcon, FlagIcon, Loader2, Plus } from "lucide-react";
 import { format } from "date-fns";
 import {
   Form,
@@ -32,34 +32,49 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { api } from "~/utils/api";
+import { useRouter } from "next/router";
+import { useTaskSection } from "~/context/title-context";
 
 const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  dueDate: z.date().optional(),
+  deadline: z.date().optional(),
   priority: z.enum(["Low", "Medium", "High"]),
-  attachments: z.array(z.string()).optional(),
-  comments: z.string().optional(),
+  taskStatus: z.enum(["Todo", "InProgress", "Done"]),
 });
 // TODO: need to put zod schema to seprate file
 export type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 export default function TaskForm({ onSave }: { onSave: () => void }) {
+  const taskSection = useTaskSection() as "Todo" | "InProgress" | "Done"; // Need better way to do this
+  const router = useRouter();
+  const utils = api.useUtils();
+  const taskMutation = api.task.create.useMutation({
+    onSuccess(data, variables) {
+      utils.project.getTask.invalidate({ projectId: variables.projectId });
+      onSave();
+    },
+  });
+
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
       title: "",
       description: "",
-      dueDate: undefined,
+      deadline: undefined,
       priority: "Medium",
-      attachments: [],
-      comments: "",
+      taskStatus: taskSection,
     },
   });
+  const projectId = router.asPath.split("/").slice(-1)[0];
 
   function onSubmit(data: TaskFormValues) {
-    console.log(data);
-    onSave();
+    if (!projectId) {
+      return;
+    }
+    console.log(data.deadline);
+    taskMutation.mutateAsync({ ...data, projectId });
   }
 
   return (
@@ -96,7 +111,13 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                 </FormItem>
               )}
             />
-            <Button type="submit">Create Task</Button>
+            <Button type="submit" disabled={taskMutation.isPending}>
+              {taskMutation.isPending ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                "Create Task"
+              )}
+            </Button>
           </div>
           <div className="col-span-2 w-full space-y-6 bg-accent/50 p-6">
             {/* Created By */}
@@ -145,7 +166,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
             <div className="space-y-2">
               <FormField
                 control={form.control}
-                name="dueDate"
+                name="deadline"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm text-muted-foreground">
@@ -174,7 +195,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
-                          disabled={(date) => date < new Date()}
+                          disabled={(date) => date <= new Date()}
                         />
                       </PopoverContent>
                     </Popover>

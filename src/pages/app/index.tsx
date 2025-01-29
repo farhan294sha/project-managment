@@ -8,13 +8,12 @@ import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 
 const AppPageLayout = ({ children }: { children: ReactNode }) => {
   const { data: session, status } = useSession();
-  console.log(session?.user?.id);
 
   useEffect(() => {
     async function authenticate() {
       if (status === "unauthenticated") {
         await signIn(undefined, {
-          callbackUrl: "/app",
+          callbackUrl: "/app/project",
         });
       }
     }

@@ -9,11 +9,12 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 import { api } from "~/utils/api";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import ProjectCreateInput from "./project-create";
+import { useRouter } from "next/navigation";
 const projectColours = [
   "bg-red-500",
   "bg-blue-500",
@@ -27,8 +28,16 @@ const projectColours = [
 ];
 const ProjectSidebarSection = () => {
   const projects = api.project.getAll.useQuery();
+  const router = useRouter();
 
   const [showInput, setShowInput] = useState(false);
+
+  useEffect(() => {
+    if (projects.isSuccess && projects.data && projects.data.length > 0) {
+      const firstProject = projects.data[0];
+      router.push(`/app/${firstProject?.id}`);
+    }
+  }, [projects.isSuccess, projects.data, router]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 

@@ -8,6 +8,7 @@ const createTaskSchema = z.object({
   deadline: z.date().optional(),
   projectId: z.string().min(1, "Project ID is required"),
   memberEmails: z.array(z.string().email()).optional(),
+  taskStatus: z.enum(["Todo", "InProgress", "Done"]),
 });
 const assignMemberSchema = z.object({
   taskId: z.string().min(1, "Task ID is required"), // Required task ID
@@ -25,6 +26,7 @@ export const taskRouter = createTRPCRouter({
         deadline,
         projectId,
         memberEmails,
+        taskStatus,
       } = input;
 
       const project = await ctx.db.project.findUnique({
@@ -61,6 +63,7 @@ export const taskRouter = createTRPCRouter({
           deadline,
           createdById: ctx.session.user.id,
           projectId,
+          status: taskStatus,
           assignedTo: {
             connect: assignedToUsers.map((user) => ({ id: user.id })),
           },
@@ -130,4 +133,8 @@ export const taskRouter = createTRPCRouter({
 
       return updatedTask;
     }),
+  update: protectedProcedure.mutation((ctx, input)=>{
+    console.log(input)
+    return {message: "Success"}
+  })
 });

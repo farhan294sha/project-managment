@@ -3,9 +3,9 @@
 
 // Define enums for TaskStatus and TaskPriority
 enum TaskStatus {
-  Pending
+  Todo
   InProgress
-  Completed
+  Done
 }
 
 enum TaskPriority {
@@ -95,7 +95,7 @@ model Task {
   id           String   @id @default(cuid())
   title        String
   description  String?
-  status       TaskStatus @default(Pending)
+  status       TaskStatus @default(Todo)
   priority     TaskPriority @default(Low)
   deadline     DateTime?
   createdAt    DateTime @default(now())

@@ -9,7 +9,7 @@ export default createNextApiHandler({
   createContext: createTRPCContext,
   onError: ({ error }) => {
     // Log the error for debugging
-
+debugger
     // Handle TRPCClientError
     if (error instanceof TRPCClientError) {
       return {
@@ -48,3 +48,9 @@ export default createNextApiHandler({
     };
   },
 });
+export const config = {
+  api: {
+    bodyParser: false,
+    responseLimit: "10mb",
+  },
+};

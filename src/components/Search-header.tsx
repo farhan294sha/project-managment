@@ -5,6 +5,7 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Bell, Calendar, MessageCircle } from "lucide-react";
 import UserInfo from "./header-user-info";
+import { signOut } from "next-auth/react";
 
 export default function SearchHeader() {
   return (
@@ -21,6 +22,7 @@ export default function SearchHeader() {
       </div>
 
       <div className="flex items-center gap-4">
+        <Button onClick={() => signOut()}>logout</Button>
         <Button
           variant="ghost"
           size="icon"

@@ -1,29 +1,15 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { Badge } from "~/components/ui/badge";
-import { CalendarIcon, ChevronDown, Plus } from "lucide-react";
+
 import { Dispatch, SetStateAction } from "react";
 import TaskForm from "../forms/add-task-form";
+import { TaskFormUpdate } from "../forms/update-task";
 
 type DialogProps = {
   open: boolean;
@@ -47,7 +33,8 @@ export default function TaskDialoge({ open, setOpen }: DialogProps) {
           </DialogTitle>
         </DialogHeader>
         {/* TASK FORM */}
-        <TaskForm onSave={handleSubmit} />
+        <TaskFormUpdate />
+        {/* <TaskForm onSave={handleSubmit} /> */}
       </DialogContent>
     </Dialog>
   );
