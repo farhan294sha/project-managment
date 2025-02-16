@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { trpc } from "../root";
 
 export const projectRouter = createTRPCRouter({
   create: protectedProcedure
@@ -150,6 +151,36 @@ export const projectRouter = createTRPCRouter({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", cause: error });
       }
     }),
+  
+  getMembers: protectedProcedure.input(z.object({
+    projectId: z.string()
+  })).query(async ({ctx, input})=>{
+    const {projectId} = input
+    try {
+      const members = await ctx.db.project.findUnique({
+        where: {
+          id: projectId
+        },
+        select: {
+          members: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              image: true
+            }
+          }
+        }
+      })
+
+      if (!members){
+        throw new TRPCError({message: "No members added in project", code: "NOT_FOUND"})
+      }
+      return members.members
+    } catch (error) {
+      throw new TRPCError({code: "INTERNAL_SERVER_ERROR"})
+    }
+  }),
 
   getTask: protectedProcedure
     .input(

@@ -35,21 +35,25 @@ import { Textarea } from "../ui/textarea";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { useTaskSection } from "~/context/title-context";
+import { createTaskSchema } from "~/utils/schema/task";
+import { signIn, useSession } from "next-auth/react";
+import { AssigneeDisplay } from "../assignee";
 
-const taskFormSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  deadline: z.date().optional(),
-  priority: z.enum(["Low", "Medium", "High"]),
-  taskStatus: z.enum(["Todo", "InProgress", "Done"]),
-});
 // TODO: need to put zod schema to seprate file
-export type TaskFormValues = z.infer<typeof taskFormSchema>;
+export type TaskFormValues = z.infer<typeof createTaskSchema>;
 
 export default function TaskForm({ onSave }: { onSave: () => void }) {
   const taskSection = useTaskSection() as "Todo" | "InProgress" | "Done"; // Need better way to do this
   const router = useRouter();
   const utils = api.useUtils();
+  const { data: session, status } = useSession();
+  if (status === "unauthenticated") {
+    signIn(undefined, {
+      callbackUrl: "/app/project",
+    });
+  }
+  const { image, name } = session?.user || {};
+
   const taskMutation = api.task.create.useMutation({
     onSuccess(data, variables) {
       utils.project.getTask.invalidate({ projectId: variables.projectId });
@@ -58,7 +62,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
   });
 
   const form = useForm<TaskFormValues>({
-    resolver: zodResolver(taskFormSchema),
+    resolver: zodResolver(createTaskSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -119,47 +123,26 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
               )}
             </Button>
           </div>
-          <div className="col-span-2 w-full space-y-6 bg-accent/50 p-6">
+          <div className="col-span-2 w-full space-y-6 bg-accent/50 p-6 overflow-auto">
             {/* Created By */}
             <div className="space-y-2">
               <div className="text-sm text-muted-foreground">Created by</div>
               <div className="flex items-center gap-2">
                 <Avatar className="h-7 w-7">
-                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarImage src={image ? image : "./placeholder"} />
                   <AvatarFallback className="bg-primary/10 text-xs">
-                    MJ
+                    {name && name[0]}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm">Michelle Jordan</span>
+                <span className="text-sm">{name}</span>
               </div>
             </div>
 
             {/* Assignee */}
             <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">Assignee</div>
-              <div className="flex items-center gap-1">
-                {/* TODO: make like +2 when more than 4  */}
-                <Avatar className="h-7 w-7 border-2 border-background text-xs">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback>U1</AvatarFallback>
-                </Avatar>
-                <Avatar className="h-6 w-6 border-2 border-background text-xs">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback>U2</AvatarFallback>
-                </Avatar>
-                <Avatar className="h-6 w-6 border-2 border-background text-xs">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback>U3</AvatarFallback>
-                </Avatar>
-                {/* TODO: Need to show members of project when click */}
-                <Button
-                  variant="purpleIcon"
-                  size="purpleIcon"
-                  className="h-6 w-6 rounded-full"
-                >
-                  <Plus className="h-3 w-3 text-primary/70" />
-                </Button>
-              </div>
+              <AssigneeDisplay
+                onChange={(emails) => form.setValue("memberEmails", emails)}
+              />
             </div>
 
             {/* Due Date */}
@@ -179,7 +162,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                             variant={"ghost"}
                             className={cn(
                               "w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground",
+                              !field.value && "text-muted-foreground"
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />

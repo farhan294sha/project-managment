@@ -33,8 +33,8 @@ export default function TaskDialoge({ open, setOpen }: DialogProps) {
           </DialogTitle>
         </DialogHeader>
         {/* TASK FORM */}
-        <TaskFormUpdate />
-        {/* <TaskForm onSave={handleSubmit} /> */}
+        {/* <TaskFormUpdate /> */}
+        <TaskForm onSave={handleSubmit} />
       </DialogContent>
     </Dialog>
   );

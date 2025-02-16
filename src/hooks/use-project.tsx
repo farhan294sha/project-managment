@@ -4,6 +4,7 @@ import { api } from "~/utils/api";
 
 export function useProject(projectId: string) {
   const projectTask = api.project.getTask.useQuery({ projectId });
+  const projectDetails = api.project.getAll.useQuery
 
   const [tasks, setTasks] = useState<{
     todo: Task[];

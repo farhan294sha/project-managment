@@ -1,15 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTaskSchema } from "~/utils/schema/task";
+import { TRPCError } from "@trpc/server";
 
-const createTaskSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  priority: z.enum(["Low", "Medium", "High"]).optional(),
-  deadline: z.date().optional(),
-  projectId: z.string().min(1, "Project ID is required"),
-  memberEmails: z.array(z.string().email()).optional(),
-  taskStatus: z.enum(["Todo", "InProgress", "Done"]),
-});
 const assignMemberSchema = z.object({
   taskId: z.string().min(1, "Task ID is required"), // Required task ID
   memberEmails: z.array(z.string().email()), // Array of user emails to assign
@@ -47,10 +40,10 @@ export const taskRouter = createTRPCRouter({
         if (assignedToUsers.length !== memberEmails.length) {
           const foundEmails = assignedToUsers.map((user) => user.email);
           const missingEmails = memberEmails.filter(
-            (email) => !foundEmails.includes(email),
+            (email) => !foundEmails.includes(email)
           );
           throw new Error(
-            `Users with the following emails not found: ${missingEmails.join(", ")}`,
+            `Users with the following emails not found: ${missingEmails.join(", ")}`
           );
         }
       }
@@ -105,10 +98,10 @@ export const taskRouter = createTRPCRouter({
       if (users.length !== memberEmails.length) {
         const foundEmails = users.map((user) => user.email);
         const missingEmails = memberEmails.filter(
-          (email) => !foundEmails.includes(email),
+          (email) => !foundEmails.includes(email)
         );
         throw new Error(
-          `Users with the following emails not found: ${missingEmails.join(", ")}`,
+          `Users with the following emails not found: ${missingEmails.join(", ")}`
         );
       }
 
@@ -133,8 +126,37 @@ export const taskRouter = createTRPCRouter({
 
       return updatedTask;
     }),
-  update: protectedProcedure.mutation((ctx, input)=>{
-    console.log(input)
-    return {message: "Success"}
-  })
+  getMembers: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.string(),
+        projectId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { taskId, projectId } = input;
+      const members = await ctx.db.task.findFirst({
+        where: {
+          AND: [{ id: taskId }, { projectId: projectId }],
+        },
+        select: {
+          assignedTo: {
+            select: {
+              id: true,
+              image: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      if (!members) {
+        throw new TRPCError({
+          message: "No members assigned",
+          code: "NOT_FOUND",
+        });
+      }
+
+      return members;
+    }),
 });
