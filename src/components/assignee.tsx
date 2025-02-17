@@ -26,10 +26,6 @@ export const AssigneeDisplay = ({onChange}: AssigneeDisplayProps) => {
 
     onChange(emails)
   }
-
-  if (!members) {
-    return <Button size={"sm"}>Add Members</Button>;
-  }
   return (
     <>
       <div className="text-sm text-muted-foreground">Assignee</div>
@@ -45,7 +41,7 @@ export const AssigneeDisplay = ({onChange}: AssigneeDisplayProps) => {
                       alt="Assignee"
                     />
                     <AvatarFallback className="bg-primary/10 text-xs">
-                      M
+                      {assignee.name && assignee.name[0]}
                     </AvatarFallback>
                   </Avatar>
                 ))}

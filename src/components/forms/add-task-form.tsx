@@ -162,7 +162,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                             variant={"ghost"}
                             className={cn(
                               "w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              { "text-muted-foreground": !field.value }
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
@@ -255,7 +255,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
             </div>
 
             {/* Created/Updated Info */}
-            <div className="space-y-2 border-t pt-4">
+            {/* <div className="space-y-2 border-t pt-4">
               <div className="flex flex-col gap-2 text-sm">
                 <span>Created</span>
                 <span className="text-xs text-muted-foreground">
@@ -268,7 +268,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                   Feb 2, 2023 4:55 PM
                 </span>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </form>
