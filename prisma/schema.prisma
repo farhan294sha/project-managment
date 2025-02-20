@@ -121,6 +121,7 @@ model Project {
   createdBy    User     @relation("CreatedProjects", fields: [createdById], references: [id])
   members      User[] @relation("ProjectMembers")
   tasks        Task[]
+  tags         Tag[]
 
 }
 
@@ -128,6 +129,8 @@ model Tag {
   id    String   @id @default(cuid())
   name  String   @unique
   tasks Task[]   @relation("TaskTags")
+  projectId String  
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 model Comment {
   id        String   @id @default(cuid())

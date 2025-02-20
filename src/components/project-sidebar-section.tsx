@@ -15,6 +15,7 @@ import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import ProjectCreateInput from "./project-create";
 import { useRouter } from "next/navigation";
+
 const projectColours = [
   "bg-red-500",
   "bg-blue-500",
@@ -32,7 +33,9 @@ const ProjectSidebarSection = () => {
 
   const [showInput, setShowInput] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    // Ensure client-side execution
     if (projects.isSuccess && projects.data && projects.data.length > 0) {
       const firstProject = projects.data[0];
       router.push(`/app/${firstProject?.id}`);
@@ -56,6 +59,7 @@ const ProjectSidebarSection = () => {
   if (projects.error) {
     return <div>Error: {projects.error.message}</div>;
   }
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <div className="flex items-center pr-2">
@@ -93,7 +97,7 @@ const ProjectSidebarSection = () => {
                         "h-2 w-2 rounded-full",
                         projectColours[
                           Math.floor(Math.random() * projectColours.length)
-                        ],
+                        ]
                       )}
                     />
                     <span className="font-medium">{project.name}</span>

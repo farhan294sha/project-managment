@@ -4,7 +4,7 @@ import {
   PopoverContent,
 } from "~/components/ui/popover";
 import { useForm } from "react-hook-form";
-import { CalendarIcon, FlagIcon, Loader2, Plus } from "lucide-react";
+import { CalendarIcon, FlagIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import {
   Form,
@@ -23,7 +23,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Badge } from "../ui/badge";
 import {
   Select,
   SelectContent,
@@ -38,6 +37,7 @@ import { useTaskSection } from "~/context/title-context";
 import { createTaskSchema } from "~/utils/schema/task";
 import { signIn, useSession } from "next-auth/react";
 import { AssigneeDisplay } from "../assignee";
+import TagManager from "../tag-manager";
 
 // TODO: need to put zod schema to seprate file
 export type TaskFormValues = z.infer<typeof createTaskSchema>;
@@ -240,18 +240,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
             {/* Tags */}
             <div className="space-y-2">
               <div className="text-sm text-muted-foreground">Tags</div>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">Design</Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1"
-                  type="button"
-                >
-                  <Plus className="h-3 w-3" />
-                  Add tag
-                </Button>
-              </div>
+              <TagManager/>
             </div>
 
             {/* Created/Updated Info */}

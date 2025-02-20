@@ -2,7 +2,6 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 
 import { Checkbox } from "~/components/ui/checkbox";
@@ -11,6 +10,7 @@ import SignupTestimonial from "~/components/SignupTestimonial";
 import { Loader2 } from "lucide-react";
 import LabeledInput from "~/components/LabeledInput";
 import OrSpan from "~/components/OrSpan";
+import Image from "next/image";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");

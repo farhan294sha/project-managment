@@ -1,4 +1,3 @@
-"use client";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
@@ -9,7 +8,6 @@ import LabeledInput from "~/components/LabeledInput";
 import OrSpan from "~/components/OrSpan";
 import SignupTestimonial from "~/components/SignupTestimonial";
 import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
 import { api } from "~/utils/api";
 import { clientZodError, isTRPCClientError } from "~/utils/erros";
 
@@ -18,6 +16,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+
   const router = useRouter();
   const signupMutation = api.post.signup.useMutation({
     async onSuccess(data) {
@@ -133,12 +132,12 @@ export default function SignUp() {
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
+                {/* <div className="flex items-center space-x-2">
                   <Checkbox id="remember" />
                   <label htmlFor="remember" className="text-sm">
                     Remember for 30 days
                   </label>
-                </div>
+                </div> */}
                 <Link
                   href="/forgot-password"
                   className="text-sm hover:underline"

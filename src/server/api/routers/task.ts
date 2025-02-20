@@ -27,7 +27,10 @@ export const taskRouter = createTRPCRouter({
       });
 
       if (!project) {
-        throw new Error("Project not found");
+        throw new TRPCError({
+          message: "Project not found",
+          code: "NOT_FOUND",
+        });
       }
 
       let assignedToUsers: { email: string | null; id: string }[] = [];
@@ -42,9 +45,10 @@ export const taskRouter = createTRPCRouter({
           const missingEmails = memberEmails.filter(
             (email) => !foundEmails.includes(email)
           );
-          throw new Error(
-            `Users with the following emails not found: ${missingEmails.join(", ")}`
-          );
+          throw new TRPCError({
+            message: `Users with the following emails not found: ${missingEmails.join(", ")}`,
+            code: "NOT_FOUND",
+          });
         }
       }
 
@@ -88,7 +92,7 @@ export const taskRouter = createTRPCRouter({
       });
 
       if (!task) {
-        throw new Error("Task not found");
+        throw new TRPCError({ message: "Task not found", code: "NOT_FOUND" });
       }
 
       const users = await ctx.db.user.findMany({
@@ -100,9 +104,10 @@ export const taskRouter = createTRPCRouter({
         const missingEmails = memberEmails.filter(
           (email) => !foundEmails.includes(email)
         );
-        throw new Error(
-          `Users with the following emails not found: ${missingEmails.join(", ")}`
-        );
+        throw new TRPCError({
+          message: `Users with the following emails not found: ${missingEmails.join(", ")}`,
+          code: "NOT_FOUND",
+        });
       }
 
       const updatedTask = await ctx.db.task.update({

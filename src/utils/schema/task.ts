@@ -8,4 +8,5 @@ export const createTaskSchema = z.object({
     projectId: z.string().min(1, "Project ID is required"),
     memberEmails: z.array(z.string().email()).optional(),
     taskStatus: z.enum(["Todo", "InProgress", "Done"]),
+    tags: z.array(z.string())
   });
