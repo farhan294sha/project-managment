@@ -6,6 +6,7 @@ import "~/styles/globals.css";
 import type { DefaultSession, Session } from "next-auth";
 import type { NextPage } from "next";
 import { api } from "~/utils/api";
+import { Toaster } from "~/components/ui/toaster"
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -36,6 +37,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <main className={GeistSans.className}>
         {getLayout(<Component {...pageProps} />)}
       </main>
+      <Toaster/>
     </SessionProvider>
   );
 };

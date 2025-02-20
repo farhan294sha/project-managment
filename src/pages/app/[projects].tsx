@@ -21,7 +21,7 @@ const Projects: NextPageWithLayout = () => {
       const firstProject = projects.data[0];
       routerPush.push(`/app/${firstProject?.id}`);
     }
-  }, [projects.isSuccess, projects.data, router]);
+  }, [projects.isSuccess, projects.data, routerPush]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 

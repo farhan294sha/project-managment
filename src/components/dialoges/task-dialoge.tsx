@@ -21,8 +21,8 @@ export default function TaskDialoge({ open, setOpen }: DialogProps) {
   }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-4xl gap-0 p-0 font-sans">
-        <DialogHeader className="border-b p-4">
+      <DialogContent className="max-w-5xl gap-0 p-0 font-sans h-[80%] overflow-hidden flex flex-col">
+        <DialogHeader className="border-b p-4 max-h-16">
           <DialogTitle>
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">

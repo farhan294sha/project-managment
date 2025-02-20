@@ -5,24 +5,25 @@ import {
   PopoverContent,
 } from "~/components/ui/popover";
 import { Button } from "~/components/ui/button";
+import { Skeleton } from "./ui/skeleton";
 
 interface ComboboxProps {
   onChange: (value: string) => void;
   options: string[];
-  placeholder?: string;
+  isLoading: boolean;
 }
 
 export const Combobox: React.FC<ComboboxProps> = ({
   onChange,
   options,
+  isLoading,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState<string[]>(options);
 
-  useEffect(()=>{
-    setFilteredOptions(options)
-
-  },[isOpen, options])
+  useEffect(() => {
+    setFilteredOptions(options);
+  }, [isOpen, options]);
 
   // Handle option selection
   const handleSelect = (value: string) => {
@@ -38,21 +39,29 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
       {isOpen && (
         <PopoverContent className="p-2">
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map((option) => (
-              <Button
-                key={option}
-                variant="ghost"
-                className="w-full text-left"
-                onClick={() => {
-                  handleSelect(option);
-                }}
-              >
-                {option}
-              </Button>
-            ))
+          {isLoading ? (
+            <Skeleton />
           ) : (
-            <p className="text-sm text-muted-foreground">No options found</p>
+            <div>
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map((option) => (
+                  <Button
+                    key={option}
+                    variant="ghost"
+                    className="w-full text-left"
+                    onClick={() => {
+                      handleSelect(option);
+                    }}
+                  >
+                    {option}
+                  </Button>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No options found
+                </p>
+              )}
+            </div>
           )}
         </PopoverContent>
       )}

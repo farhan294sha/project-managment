@@ -257,7 +257,9 @@ export const projectRouter = createTRPCRouter({
           id: projectId,
         },
         select: {
-          tags: true,
+          tags: {select: {
+            name: true
+          }},
         },
       });
 
@@ -267,4 +269,22 @@ export const projectRouter = createTRPCRouter({
 
       return tags.tags;
     }),
+
+    updateTags: protectedProcedure.input(z.object({
+      projectId: z.string(),
+      tags: z.array(z.string())
+    })).mutation(async ({ctx, input})=>{
+      const {projectId, tags} = input
+
+      const projectTags = tags.map((tag)=> {
+        return {projectId: projectId, name: tag}
+      })
+
+      const createdTags = await ctx.db.tag.createMany({
+        data: projectTags,
+        skipDuplicates: true 
+      })
+
+      return createdTags
+    })
 });
