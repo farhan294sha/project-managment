@@ -3,7 +3,10 @@ import { Task } from "~/components/task-card";
 import { api } from "~/utils/api";
 
 export function useProject(projectId: string) {
-  const projectTask = api.project.getTask.useQuery({ projectId });
+  const projectTask = api.project.getTask.useQuery(
+    { projectId },
+    { staleTime: 15000 }
+  );
 
   const [tasks, setTasks] = useState<{
     todo: Task[];

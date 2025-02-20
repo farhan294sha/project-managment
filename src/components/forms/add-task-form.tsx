@@ -33,7 +33,7 @@ import {
 import { Textarea } from "../ui/textarea";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
-import { useTaskSection } from "~/context/title-context";
+import { useTaskSection } from "~/context/task-section-context";
 import { createTaskSchema } from "~/utils/schema/task";
 import { signIn, useSession } from "next-auth/react";
 import { AssigneeDisplay } from "../assignee";
@@ -55,11 +55,14 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
   const { image, name } = session?.user || {};
 
   const taskMutation = api.task.create.useMutation({
-    onSuccess(data, variables) {
-      utils.project.getTask.invalidate({ projectId: variables.projectId });
+    async onSuccess(data, variables) {
+      await utils.project.getTask.invalidate({
+        projectId: variables.projectId,
+      });
       onSave();
     },
   });
+  const projectId = router.query.projects as string;
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(createTaskSchema),
@@ -69,16 +72,20 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
       deadline: undefined,
       priority: "Medium",
       taskStatus: taskSection,
+      projectId: projectId,
     },
   });
-  const projectId = router.asPath.split("/").slice(-1)[0];
 
-  function onSubmit(data: TaskFormValues) {
+  async function onSubmit(data: TaskFormValues) {
+    console.log("RECAHED HERE");
     if (!projectId) {
       return;
     }
-    console.log(data.deadline);
-    taskMutation.mutateAsync({ ...data, projectId });
+    try {
+      await taskMutation.mutateAsync({ ...data, projectId });
+    } catch (error) {
+      console.log("Something went wrong");
+    }
   }
 
   return (
@@ -178,7 +185,9 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
-                            disabled={(date) => date <= new Date()}
+                            disabled={(date) =>
+                              date < new Date(new Date().setHours(0, 0, 0, 0))
+                            }
                           />
                         </PopoverContent>
                       </Popover>
@@ -241,6 +250,9 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
               <div className="space-y-2">
                 <div className="text-sm text-muted-foreground">Tags</div>
                 <TagManager onChange={(tags) => form.setValue("tags", tags)} />
+                {form.formState.errors.tags && (
+                  <p className="text-red-600">Required</p>
+                )}
               </div>
 
               {/* Created/Updated Info */}

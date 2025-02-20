@@ -286,5 +286,5 @@ export const projectRouter = createTRPCRouter({
       })
 
       return createdTags
-    })
+    }),
 });

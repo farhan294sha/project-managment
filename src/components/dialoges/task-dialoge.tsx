@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Dialog,
   DialogContent,
@@ -9,6 +7,10 @@ import {
 
 import { Dispatch, SetStateAction } from "react";
 import TaskForm from "../forms/add-task-form";
+import { api } from "~/utils/api";
+import { useRouter } from "next/router";
+import { useTaskSection } from "~/context/task-section-context";
+import { Skeleton } from "../ui/skeleton";
 
 type DialogProps = {
   open: boolean;
@@ -16,6 +18,15 @@ type DialogProps = {
 };
 
 export default function TaskDialoge({ open, setOpen }: DialogProps) {
+  const router = useRouter();
+  const taskSection = useTaskSection();
+  const projectId = router.query.projects as string;
+  const project = api.project.getbyId.useQuery(
+    { id: projectId },
+    {
+      enabled: !!projectId,
+    }
+  );
   function handleSubmit() {
     setOpen(false);
   }
@@ -26,13 +37,18 @@ export default function TaskDialoge({ open, setOpen }: DialogProps) {
           <DialogTitle>
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
-                Your Projects / Wiscraft / In progress
+                {project.isLoading ? (
+                  <Skeleton />
+                ) : (
+                  `${project.data?.name}/${taskSection}`
+                )}
               </div>
             </div>
           </DialogTitle>
         </DialogHeader>
         {/* TASK FORM */}
         {/* <TaskFormUpdate /> */}
+        {/* <DisplayTask/> */}
         <TaskForm onSave={handleSubmit} />
       </DialogContent>
     </Dialog>

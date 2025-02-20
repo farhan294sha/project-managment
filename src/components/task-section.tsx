@@ -3,7 +3,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import { type Task, TaskCard } from "./task-card";
 import AddTask from "./add-task";
-import { TaskSectionProvider } from "~/context/title-context";
+import { TaskSectionProvider } from "~/context/task-section-context";
 
 export type TaskSectionVariant = "todo" | "onProgress" | "done";
 export type TaskSection = {

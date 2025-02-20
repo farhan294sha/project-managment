@@ -7,7 +7,7 @@ const TaskSectionContext = createContext<string | undefined>(undefined);
 export const useTaskSection = () => {
   const context = useContext(TaskSectionContext);
   if (context === undefined) {
-    throw new Error("useTitle must be used within a TitleProvider");
+    throw new Error("useTaskSection must be used within a TaskSectionProvider");
   }
   return context;
 };
