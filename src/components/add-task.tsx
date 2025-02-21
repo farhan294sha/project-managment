@@ -14,7 +14,7 @@ const AddTask = () => {
       >
         <Plus className="h-4 w-4 text-primary/70" />
       </Button>
-      <TaskDialoge open={open} setOpen={setOpen} />
+      <TaskDialoge open={open} setOpen={setOpen} dialogType="add" />
     </>
   );
 };

@@ -53,6 +53,7 @@ export default function TagManager({ onChange }: TagManagerProps) {
       }
     }
     if (inputValue && !selectedTags.includes(inputValue)) {
+      console.log("ADD TAG");
       setSelectedTags([...selectedTags, inputValue]);
       onChange([...selectedTags, inputValue]);
     }
@@ -63,6 +64,7 @@ export default function TagManager({ onChange }: TagManagerProps) {
   const selectTag = (tag: string) => {
     if (!selectedTags.includes(tag)) {
       setSelectedTags([...selectedTags, tag]);
+      onChange([...selectedTags, tag]);
     }
     setInputValue(""); // Clear the input after selection
   };
@@ -70,6 +72,7 @@ export default function TagManager({ onChange }: TagManagerProps) {
   // Handle removing a tag
   const removeTag = (tag: string) => {
     setSelectedTags(selectedTags.filter((t) => t !== tag));
+    onChange(selectedTags.filter((t) => t !== tag));
   };
 
   useEffect(() => {

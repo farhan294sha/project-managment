@@ -16,6 +16,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [githubLoading, setGithubLoading] = useState(false);
 
   const router = useRouter();
   const signupMutation = api.post.signup.useMutation({
@@ -88,8 +89,11 @@ export default function SignUp() {
                 type="button"
                 variant="outline"
                 className="w-full justify-center space-x-2"
+                disabled={githubLoading}
                 onClick={async () => {
+                  setGithubLoading(true);
                   await signIn("github", { callbackUrl: "/app/projects" });
+                  setGithubLoading(false);
                 }}
               >
                 <Image
@@ -98,7 +102,11 @@ export default function SignUp() {
                   width="20"
                   src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/github.svg"
                 />
-                <span>Continue with Github</span>
+                {githubLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <span>Continue with Github</span>
+                )}
               </Button>
 
               <OrSpan />

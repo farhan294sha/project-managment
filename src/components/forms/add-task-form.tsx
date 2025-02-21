@@ -1,11 +1,6 @@
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "~/components/ui/popover";
 import { useForm } from "react-hook-form";
-import { CalendarIcon, FlagIcon, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
+
 import {
   Form,
   FormControl,
@@ -15,46 +10,47 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 
-import { z } from "zod";
-import { cn } from "~/lib/utils";
-
 import { Input } from "../ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
-import { Calendar } from "../ui/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+
 import { Textarea } from "../ui/textarea";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { useTaskSection } from "~/context/task-section-context";
-import { createTaskSchema } from "~/utils/schema/task";
+import { createTaskSchema, TaskFormValues } from "~/utils/schema/task";
 import { signIn, useSession } from "next-auth/react";
 import { AssigneeDisplay } from "../assignee";
 import TagManager from "../tag-manager";
+import DueDateForm from "./due-date-form";
+import PriorityForm from "./priority-form";
+import { useEffect } from "react";
 
 // TODO: need to put zod schema to seprate file
-export type TaskFormValues = z.infer<typeof createTaskSchema>;
 
-export default function TaskForm({ onSave }: { onSave: () => void }) {
-  const taskSection = useTaskSection() as "Todo" | "InProgress" | "Done"; // Need better way to do this
+export default function TaskForm({
+  onSave,
+  existingTask,
+}: {
+  onSave: () => void;
+  existingTask?: TaskFormValues;
+}) {
+  const taskSection = useTaskSection() as "Todo" | "InProgress" | "Done";
   const router = useRouter();
   const utils = api.useUtils();
   const { data: session, status } = useSession();
-  if (status === "unauthenticated") {
-    signIn(undefined, {
-      callbackUrl: "/app/project",
-    });
-  }
-  const { image, name } = session?.user || {};
 
-  const taskMutation = api.task.create.useMutation({
+  if (status === "unauthenticated") {
+    signIn(undefined, { callbackUrl: "/app/project" });
+  }
+
+  const { image, name } = session?.user || {};
+  const projectId = router.query.projects as string;
+  const isEditMode = !!existingTask;
+
+  // Create task mutation
+  const createTaskMutation = api.task.create.useMutation({
     async onSuccess(data, variables) {
       await utils.project.getTask.invalidate({
         projectId: variables.projectId,
@@ -62,11 +58,18 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
       onSave();
     },
   });
-  const projectId = router.query.projects as string;
+
+  // Update task mutation
+  // const updateTaskMutation = api.task.update.useMutation({
+  //   async onSuccess(data, variables) {
+  //     await utils.project.getTask.invalidate({ projectId: variables.projectId });
+  //     onSave();
+  //   },
+  // });
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(createTaskSchema),
-    defaultValues: {
+    defaultValues: existingTask || {
       title: "",
       description: "",
       deadline: undefined,
@@ -76,24 +79,41 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
     },
   });
 
-  async function onSubmit(data: TaskFormValues) {
-    console.log("RECAHED HERE");
-    if (!projectId) {
-      return;
+  // If existingTask changes (e.g., when editing different tasks), reset form values
+  useEffect(() => {
+    if (existingTask) {
+      form.reset(existingTask);
     }
+  }, [existingTask, form]);
+
+  async function onSubmit(data: TaskFormValues) {
+    if (!projectId) return;
+
     try {
-      await taskMutation.mutateAsync({ ...data, projectId });
+      await createTaskMutation.mutateAsync({ ...data, projectId });
+      // if (isEditMode && existingTask?.id) {
+      //   // Update existing task
+      //   await updateTaskMutation.mutateAsync({
+      //     ...data,
+      //     projectId,
+      //     id: existingTask.id
+      //   });
+      // } else {
+      //   // Create new task
+      //   await createTaskMutation.mutateAsync({ ...data, projectId });
+      // }
     } catch (error) {
-      console.log("Something went wrong");
+      console.error("Failed to save task:", error);
     }
   }
+
+  const isPending = createTaskMutation.isPending;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="h-full space-y-6">
-        {/* Title */}
         <div className="grid h-full grid-cols-1 md:grid-cols-5 overflow-hidden">
-          <div className="col-span-3 space-y-2  p-6 overflow-auto h-full">
+          <div className="col-span-3 space-y-2 p-6 overflow-auto h-full">
             <FormField
               control={form.control}
               name="title"
@@ -107,7 +127,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                 </FormItem>
               )}
             />
-            {/* Description */}
+
             <FormField
               control={form.control}
               name="description"
@@ -121,17 +141,20 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={taskMutation.isPending}>
-              {taskMutation.isPending ? (
+
+            <Button type="submit" disabled={isPending}>
+              {isPending ? (
                 <Loader2 className="animate-spin" />
+              ) : isEditMode ? (
+                "Update Task"
               ) : (
                 "Create Task"
               )}
             </Button>
           </div>
+
           <div className="col-span-2 overflow-auto h-full">
             <div className="space-y-6 bg-accent/50 p-6 w-full h-full">
-              {/* Created By */}
               <div className="space-y-2">
                 <div className="text-sm text-muted-foreground">Created by</div>
                 <div className="flex items-center gap-2">
@@ -145,131 +168,49 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                 </div>
               </div>
 
-              {/* Assignee */}
               <div className="space-y-2">
                 <AssigneeDisplay
                   onChange={(emails) => form.setValue("memberEmails", emails)}
                 />
               </div>
 
-              {/* Due Date */}
               <div className="space-y-2">
-                <FormField
-                  control={form.control}
-                  name="deadline"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm text-muted-foreground">
-                        Due Date
-                      </FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"ghost"}
-                              className={cn(
-                                "w-full justify-start text-left font-normal",
-                                { "text-muted-foreground": !field.value }
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value
-                                ? format(field.value, "PPP")
-                                : "Pick a date"}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            disabled={(date) =>
-                              date < new Date(new Date().setHours(0, 0, 0, 0))
-                            }
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <DueDateForm form={form} />
               </div>
 
-              {/* Priority */}
               <div className="space-y-2">
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm text-muted-foreground">
-                        Priority
-                      </FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          value={field.value}
-                        >
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select priority" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="High" className="flex gap-2">
-                              <div className="flex items-center gap-2">
-                                <FlagIcon className="h-4 w-4 text-red-800" />
-                                <div>High</div>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="Medium">
-                              <div className="flex items-center gap-2">
-                                <FlagIcon className="h-4 w-4 text-orange-600" />
-
-                                <div>Medium</div>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="Low" className="flex gap-2">
-                              <div className="flex items-center gap-2">
-                                <FlagIcon className="h-4 w-4 text-green-600" />
-
-                                <div>Low</div>
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <PriorityForm form={form} />
               </div>
 
-              {/* Tags */}
               <div className="space-y-2">
                 <div className="text-sm text-muted-foreground">Tags</div>
-                <TagManager onChange={(tags) => form.setValue("tags", tags)} />
+                <TagManager
+                  onChange={(tags) => {
+                    console.log("Tags from on chnage", tags);
+                    form.setValue("tags", tags);
+                  }}
+                />
                 {form.formState.errors.tags && (
                   <p className="text-red-600">Required</p>
                 )}
               </div>
-
-              {/* Created/Updated Info */}
-              {/* <div className="space-y-2 border-t pt-4">
-              <div className="flex flex-col gap-2 text-sm">
-                <span>Created</span>
-                <span className="text-xs text-muted-foreground">
-                  Feb 2, 2023 4:30 PM
-                </span>
-              </div>
-              <div className="flex flex-col gap-2 text-sm">
-                <span>Updated</span>
-                <span className="text-xs text-muted-foreground">
-                  Feb 2, 2023 4:55 PM
-                </span>
-              </div>
-            </div> */}
+              {/* 
+              {isEditMode && (
+                <div className="space-y-2 border-t pt-4">
+                  <div className="flex flex-col gap-2 text-sm">
+                    <span>Created</span>
+                    <span className="text-xs text-muted-foreground">
+                      {existingTask.createdAt ? new Date(existingTask.createdAt).toLocaleString() : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-2 text-sm">
+                    <span>Updated</span>
+                    <span className="text-xs text-muted-foreground">
+                      {existingTask.updatedAt ? new Date(existingTask.updatedAt).toLocaleString() : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+              )} */}
             </div>
           </div>
         </div>

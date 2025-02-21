@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { createTaskSchema } from "~/utils/schema/task";
 import { TRPCError } from "@trpc/server";
+import { tree } from "next/dist/build/templates/app-page";
 
 const assignMemberSchema = z.object({
   taskId: z.string().min(1, "Task ID is required"), // Required task ID
@@ -20,6 +21,7 @@ export const taskRouter = createTRPCRouter({
         projectId,
         memberEmails,
         taskStatus,
+        tags,
       } = input;
 
       const project = await ctx.db.project.findUnique({
@@ -63,6 +65,12 @@ export const taskRouter = createTRPCRouter({
           status: taskStatus,
           assignedTo: {
             connect: assignedToUsers.map((user) => ({ id: user.id })),
+          },
+          tags: {
+            connectOrCreate: tags.map((tagName) => ({
+              where: { name: tagName, projectId: projectId },
+              create: { name: tagName, projectId: projectId },
+            })),
           },
         },
         include: {
@@ -163,5 +171,50 @@ export const taskRouter = createTRPCRouter({
       }
 
       return members;
+    }),
+  getbyId: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { taskId } = input;
+
+      const task = await ctx.db.task.findUnique({
+        where: {
+          id: taskId,
+        },
+        select: {
+          title: true,
+          tags: true,
+          description: true,
+          deadline: true,
+          createdAt: true,
+          updatedAt: true,
+          priority: true,
+          status: true,
+          createdBy: {
+            select: {
+              image: true,
+              name: true,
+            },
+          },
+          assignedTo: {
+            select: {
+              image: true,
+              email: true,
+              name: true,
+              id: true,
+            },
+          },
+        },
+      });
+
+      if (!task) {
+        throw new TRPCError({ message: "Task Not Found", code: "NOT_FOUND" });
+      }
+
+      return task;
     }),
 });

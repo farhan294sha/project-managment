@@ -1,16 +1,21 @@
 import { Plus, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AvatarGroup } from "./avatar-group";
 import { ScrollAreaDemo } from "./selectMembers";
 import { Member } from "~/utils/types";
+import AvatarGroupDisplay from "./avatar-group-display";
 
 interface AssigneeDisplayProps {
   onChange: (emails: string[]) => void;
+  assignedTo?: Member[];
 }
 
-export const AssigneeDisplay = ({ onChange }: AssigneeDisplayProps) => {
+export const AssigneeDisplay = ({
+  onChange,
+  assignedTo,
+}: AssigneeDisplayProps) => {
   // const router = useRouter();
   // const projectId = router.asPath.split("/").slice(-1)[0] as string;
   const [showAddMembers, setShowAddMembers] = useState(false);
@@ -24,46 +29,17 @@ export const AssigneeDisplay = ({ onChange }: AssigneeDisplayProps) => {
 
     onChange(emails);
   }
+
+  useEffect(() => {
+    if (assignedTo) {
+      setMembers(assignedTo);
+    }
+  }, [assignedTo]);
   return (
     <>
       <div className="text-sm text-muted-foreground">Assignee</div>
       <div className="flex items-center gap-1">
-        {members.length > 0 && (
-          <AvatarGroup>
-            {members.length >= 3 ? (
-              <div className="flex items-center -space-x-2">
-                {members.slice(0, 4).map((assignee, index) => (
-                  <Avatar key={index} className="h-7 w-7">
-                    <AvatarImage
-                      src={assignee.image ?? undefined}
-                      alt="Assignee"
-                    />
-                    <AvatarFallback className="bg-primary/10 text-xs">
-                      {assignee.name && assignee.name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                ))}
-                <Avatar className="flex h-8 w-8 items-center justify-center border-2 border-white bg-gray-200">
-                  <span className="text-sm font-medium text-gray-700">
-                    +{members.length - 4}
-                  </span>
-                </Avatar>
-              </div>
-            ) : (
-              members.map((assignee, index) => (
-                <Avatar key={index} className="h-7 w-7">
-                  <AvatarImage
-                    src={assignee.image ?? undefined}
-                    alt="Assignee"
-                  />
-                  <AvatarFallback className="bg-primary/10 text-xs">
-                    {assignee.name && assignee.name[0]}
-                  </AvatarFallback>
-                </Avatar>
-              ))
-            )}
-          </AvatarGroup>
-        )}
+        <AvatarGroupDisplay members={members} />
         <Button
           type="button"
           variant="purpleIcon"
