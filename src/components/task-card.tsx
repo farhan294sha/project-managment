@@ -3,13 +3,19 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Card } from "~/components/ui/card";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import { MoreHorizontal, MessageCircle, File } from "lucide-react";
+import {
+  MoreHorizontal,
+  MessageCircle,
+  File,
+  GripHorizontalIcon,
+} from "lucide-react";
 import Image from "next/image";
 import { AvatarGroup } from "./avatar-group";
 import { TaskPriority, TaskStatus } from "@prisma/client";
 import TaskDialoge from "./dialoges/task-dialoge";
 import PriorityDisplay from "./priority-display";
 import { useState } from "react";
+import { cn } from "~/lib/utils";
 export type Task = {
   id: string;
   title: string;
@@ -33,9 +39,10 @@ export function TaskCard({
   assignedTo,
   _count,
 }: TaskCardProps) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id,
-  });
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id,
+    });
 
   const [openDiplayTask, setOpenDiplayTask] = useState(false);
 
@@ -52,20 +59,42 @@ export function TaskCard({
       <Card
         ref={setNodeRef}
         style={style}
-        {...attributes}
-        {...listeners}
-        className="space-y-3 p-4"
+        className={cn(
+          "space-y-3 p-4",
+          "hover:shadow-xl hover:shadow-zinc-500/20 dark:hover:shadow-zinc-900/20",
+          "transition-shadow",
+          "relative",
+          "group",
+          "hover:cursor-pointer"
+        )}
         onClick={(e) => {
           e.stopPropagation();
           setOpenDiplayTask(true);
         }}
       >
+        <div
+          {...attributes}
+          {...listeners}
+          className={cn(
+            "absolute top-16 right-4",
+            "text-muted-foreground",
+            "opacity-0",
+            "group-hover:opacity-100",
+            "transition-all",
+            "hover:cursor-grab",
+            {
+              "hover:cursor-grabbing": isDragging,
+            }
+          )}
+        >
+          <GripHorizontalIcon className="h-5 w-5"/>
+        </div>
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <PriorityDisplay priority={priority} />
             <h3 className="text-lg font-semibold">{title}</h3>
           </div>
-          <button className="text-gray-500 hover:text-gray-700">
+          <button className="text-gray-500 hover:text-gray-900 ">
             <MoreHorizontal className="h-5 w-5" />
           </button>
         </div>

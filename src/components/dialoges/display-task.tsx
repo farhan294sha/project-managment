@@ -7,6 +7,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import AvatarGroupDisplay from "../avatar-group-display";
 import { Badge } from "../ui/badge";
 import PriorityDisplay from "../priority-display";
+import TaskComments from "../task-comments";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion";
 
 const DisplayTask = ({ taskId }: { taskId?: string }) => {
   const { toast } = useToast();
@@ -47,7 +54,21 @@ const DisplayTask = ({ taskId }: { taskId?: string }) => {
           <div className="space-y-2 pt-2 pl-2">
             <div className="text-muted-foreground">{task.description}</div>
           </div>
-          
+          <div className="mt-2">
+            <Accordion type="single" collapsible>
+              <AccordionItem value="comments">
+                <AccordionTrigger className="text-sm font-medium">
+                  <div className="flex gap-2">
+                    <div>Comments</div> 
+                    <span className="text-muted-foreground">2</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <TaskComments />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
         </div>
 
         <div className="col-span-2 overflow-auto h-full">
@@ -79,9 +100,7 @@ const DisplayTask = ({ taskId }: { taskId?: string }) => {
             <div className="space-y-2">
               <div className="text-sm text-muted-foreground">Due Date</div>
               <div className="text-sm">
-                {task.deadline
-                  ? new Date(task.deadline).toDateString()
-                  : "N/A"}
+                {task.deadline ? new Date(task.deadline).toDateString() : "N/A"}
               </div>
             </div>
 
@@ -94,9 +113,11 @@ const DisplayTask = ({ taskId }: { taskId?: string }) => {
 
             <div className="space-y-2">
               <div className="text-sm text-muted-foreground">Tags</div>
-              {task.tags.map((tag) => {
-                return <Badge key={tag.id}>{tag.name}</Badge>;
-              })}
+              <div className="space-x-1">
+                {task.tags.map((tag) => {
+                  return <Badge key={tag.id}>{tag.name}</Badge>;
+                })}
+              </div>
             </div>
 
             <div className="space-y-2 border-t pt-4">
