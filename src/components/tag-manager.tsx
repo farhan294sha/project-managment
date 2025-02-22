@@ -1,15 +1,16 @@
-import { useState, ChangeEvent, useEffect } from "react";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Plus } from "lucide-react"; // Assuming Plus icon is from lucide-react
-import { Combobox } from "~/components/combobox"; // Custom Combobox component
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { useToast } from "~/hooks/use-toast";
+import InputTags from "./invite-input";
 
 interface TagManagerProps {
   onChange: (tags: string[]) => void;
+}
+
+interface Tag {
+  id: string;
+  label: string;
+  color?: string;
 }
 
 export default function TagManager({ onChange }: TagManagerProps) {
@@ -19,111 +20,55 @@ export default function TagManager({ onChange }: TagManagerProps) {
   const projectId = router.query.projects as string;
   const {
     data: projectTags,
-    isLoading,
     isError,
+    error,
   } = api.project.getTags.useQuery(
     { projectId: projectId },
     { enabled: !!projectId }
   );
 
   const createTagMut = api.project.updateTags.useMutation({
-    async onSuccess() {
+    async onSuccess(data, variables) {
+      onChange(variables.tags);
       await apiClient.project.getTags.invalidate({ projectId: projectId });
     },
-    onError(error, variables, context) {
-      toast({ title: error.shape?.message });
+    onError(error) {
+      toast({ title: error.message });
     },
   });
 
-  const [tags, setTags] = useState<string[]>([]);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [inputValue, setInputValue] = useState<string>("");
+  async function handleTagChange(tags: Tag[]) {
+    if (projectTags) {
+      const tagsToAdd = tags.filter((tag) => {
+        return projectTags.some((projectTag) => projectTag.id !== tag.id);
+      });
 
-  // Handle adding a new tag
-  const addTag = async () => {
-    if (inputValue && !tags.includes(inputValue)) {
-      try {
-        await createTagMut.mutateAsync({
-          projectId,
-          tags: [...tags, inputValue],
-        });
-      } catch (error) {
-        console.error("Cannot create tag");
-        return;
+      if (tagsToAdd.length > 0) {
+        try {
+          await createTagMut.mutateAsync({
+            projectId: projectId,
+            tags: tagsToAdd.map((tag) => tag.label),
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        onChange(tags.map((tag) => tag.label));
       }
     }
-    if (inputValue && !selectedTags.includes(inputValue)) {
-      console.log("ADD TAG");
-      setSelectedTags([...selectedTags, inputValue]);
-      onChange([...selectedTags, inputValue]);
-    }
-    setInputValue("");
-  };
-
-  // Handle selecting a tag
-  const selectTag = (tag: string) => {
-    if (!selectedTags.includes(tag)) {
-      setSelectedTags([...selectedTags, tag]);
-      onChange([...selectedTags, tag]);
-    }
-    setInputValue(""); // Clear the input after selection
-  };
-
-  // Handle removing a tag
-  const removeTag = (tag: string) => {
-    setSelectedTags(selectedTags.filter((t) => t !== tag));
-    onChange(selectedTags.filter((t) => t !== tag));
-  };
-
-  useEffect(() => {
-    if (projectTags) {
-      setTags(projectTags.map((tag) => tag.name));
-    }
-  }, [projectTags]);
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        {selectedTags.map((tag) => (
-          <Badge key={tag} variant="secondary">
-            {tag}
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => removeTag(tag)}
-              className="ml-1 p-0 text-xs"
-            >
-              ×
-            </Button>
-          </Badge>
-        ))}
-      </div>
-
-      {/* Tag Input Field */}
-
-      <div className="flex gap-2">
-        <Input
-          value={inputValue}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setInputValue(e.target.value)
-          }
-          placeholder="Enter new tag"
-        />
-        <Button variant="outline" size="sm" onClick={addTag} type="button">
-          <Plus className="h-4 w-4" />
-          Add tag
-        </Button>
-      </div>
-
-      {/* Combobox for selecting existing tags */}
-      <Combobox
-        onChange={selectTag}
-        options={tags.filter((tag) => !selectedTags.includes(tag))}
-        isLoading={isLoading}
-      />
-      {createTagMut.isError && (
-        <p className="text-red-500">{createTagMut.failureReason?.message}</p>
-      )}
-    </div>
+    <InputTags
+      onChange={handleTagChange}
+      suggestions={
+        projectTags
+          ? projectTags?.map((projectTag) => {
+              return { id: projectTag.id, label: projectTag.name };
+            })
+          : undefined
+      }
+      error={isError && error.message ? error.message : undefined}
+    />
   );
 }

@@ -28,7 +28,6 @@ export default function TaskDialoge({
   selectedTaskId,
   taskTitle,
 }: DialogProps) {
-  console.log("Task dialog received taskId:", selectedTaskId);
   const router = useRouter();
   const taskSection = useTaskSection();
 

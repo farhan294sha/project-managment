@@ -52,7 +52,6 @@ export function TaskCard({
       }
     : undefined;
 
-  console.log("TASKCARD TASKID:", id);
 
   return (
     <>
@@ -140,7 +139,6 @@ export function TaskCard({
           </div>
         </div>
       </Card>
-      {console.log("TASK ID RIGHT BEVFOR RENDER", id)}
       {openDiplayTask && (
         <TaskDialoge
           open={openDiplayTask}

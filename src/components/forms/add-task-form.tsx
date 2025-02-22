@@ -26,6 +26,7 @@ import TagManager from "../tag-manager";
 import DueDateForm from "./due-date-form";
 import PriorityForm from "./priority-form";
 import { useEffect } from "react";
+import InputTags from "../invite-input";
 
 // TODO: need to put zod schema to seprate file
 
@@ -90,6 +91,7 @@ export default function TaskForm({
     if (!projectId) return;
 
     try {
+      // TODO: EDIT TASK
       await createTaskMutation.mutateAsync({ ...data, projectId });
       // if (isEditMode && existingTask?.id) {
       //   // Update existing task
@@ -183,7 +185,7 @@ export default function TaskForm({
               </div>
 
               <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Tags</div>
+                {/* <InputTags/> */}
                 <TagManager
                   onChange={(tags) => {
                     console.log("Tags from on chnage", tags);

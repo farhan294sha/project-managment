@@ -11,6 +11,7 @@ import { AvatarGroup } from "./avatar-group";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { api } from "~/utils/api";
 import { Skeleton } from "./ui/skeleton";
+import InputTags from "./invite-input";
 type ProjectHeaderProps = {
   projectId: string;
 };

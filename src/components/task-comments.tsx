@@ -113,7 +113,6 @@ export default function TaskComments({
   const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault()
     // Here you would typically send the new comment to your backend
-    console.log("Submitting comment:", newComment)
     setNewComment("")
   }
 

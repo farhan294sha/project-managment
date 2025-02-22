@@ -39,7 +39,6 @@ const FileUploadFeild = ({ control, name }: FileUploadprops) => {
         };
       });
       setPreview(preViewUrls);
-      console.log("Inside handiler file", files);
       field.onChange(files);
     }
   }

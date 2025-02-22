@@ -41,7 +41,6 @@ const DisplayTask = ({ taskId }: { taskId?: string }) => {
     return <div>Task not found</div>;
   }
 
-  console.log(task.tags);
 
   return (
     <div className="h-full space-y-6">

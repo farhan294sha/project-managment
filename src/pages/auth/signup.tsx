@@ -21,7 +21,6 @@ export default function SignUp() {
   const router = useRouter();
   const signupMutation = api.post.signup.useMutation({
     async onSuccess(data) {
-      console.log("on success");
       const result = await signIn("credentials", {
         redirect: false,
         email: data.email,
