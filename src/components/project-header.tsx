@@ -1,17 +1,8 @@
-import {
-  Calendar,
-  ChevronDown,
-  Filter,
-  Link2,
-  PlusIcon,
-  SquarePen,
-} from "lucide-react";
+import { Calendar, ChevronDown, Filter, Link2, SquarePen } from "lucide-react";
 import { Button } from "./ui/button";
-import { AvatarGroup } from "./avatar-group";
-import { Avatar, AvatarImage } from "./ui/avatar";
 import { api } from "~/utils/api";
 import { Skeleton } from "./ui/skeleton";
-import InputTags from "./invite-input";
+import InviteMember from "./member-invite";
 type ProjectHeaderProps = {
   projectId: string;
 };
@@ -72,47 +63,7 @@ const ProjectHeader = ({ projectId }: ProjectHeaderProps) => {
         </div>
       </div>
       <div>
-        <div className="flex gap-2">
-          <div className="flex items-center justify-center gap-2">
-            <Button size="purpleIcon" variant="purpleIcon">
-              <PlusIcon className="h-4 w-4 text-primary/90" />
-            </Button>
-            <div className="font-medium text-primary">Invite</div>
-          </div>
-          {project.members.length > 0 && (
-            <AvatarGroup>
-              {project.members.length >= 5 ? (
-                <div className="flex items-center -space-x-2">
-                  {project.members.slice(0, 4).map((assignee, index) => (
-                    <Avatar
-                      key={index}
-                      className="h-8 w-8 border-2 border-white"
-                    >
-                      <AvatarImage
-                        src={assignee.image ?? undefined}
-                        alt="Assignee"
-                      />
-                    </Avatar>
-                  ))}
-                  <Avatar className="flex h-8 w-8 items-center justify-center border-2 border-white bg-gray-200">
-                    <span className="text-sm font-medium text-gray-700">
-                      +{project.members.length - 4}
-                    </span>
-                  </Avatar>
-                </div>
-              ) : (
-                project.members.map((assignee, index) => (
-                  <Avatar key={index} className="h-8 w-8 border-2 border-white">
-                    <AvatarImage
-                      src={assignee.image ?? undefined}
-                      alt="Assignee"
-                    />
-                  </Avatar>
-                ))
-              )}
-            </AvatarGroup>
-          )}
-        </div>
+        <InviteMember project={project} />
       </div>
     </div>
   );

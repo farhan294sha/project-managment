@@ -47,6 +47,10 @@ export const projectRouter = createTRPCRouter({
 
       const users = await ctx.db.user.findMany({
         where: { email: { in: memberEmails } },
+        select: {
+          id: true,
+          email: true,
+        },
       });
 
       // Check if all emails correspond to valid users
@@ -55,6 +59,7 @@ export const projectRouter = createTRPCRouter({
         const missingEmails = memberEmails.filter(
           (email) => !foundEmails.includes(email)
         );
+        // sent email to missing emails
         throw new TRPCError({
           message: `Users with the following emails not found: ${missingEmails.join(", ")}`,
           code: "NOT_FOUND",
@@ -65,20 +70,16 @@ export const projectRouter = createTRPCRouter({
         where: { id: projectId },
         data: {
           members: {
-            connect: users.map((user) => ({ id: user.id })), // Connect each user to the project
+            connect: users.map((user) => ({ id: user.id })),
           },
         },
-        include: {
-          members: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-              email: true,
-            },
-          },
+        select: {
+          _count: {
+            select: {members: true}
+          }
         },
       });
+      
 
       return updatedProject;
     }),

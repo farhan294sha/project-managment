@@ -26,7 +26,6 @@ import TagManager from "../tag-manager";
 import DueDateForm from "./due-date-form";
 import PriorityForm from "./priority-form";
 import { useEffect } from "react";
-import InputTags from "../invite-input";
 
 // TODO: need to put zod schema to seprate file
 

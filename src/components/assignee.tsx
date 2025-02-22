@@ -1,15 +1,15 @@
 import { Plus, X } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import { AvatarGroup } from "./avatar-group";
 import { ScrollAreaDemo } from "./selectMembers";
 import { Member } from "~/utils/types";
 import AvatarGroupDisplay from "./avatar-group-display";
 
+export type AssigneeMembers = Member & { email: string | null };
+
 interface AssigneeDisplayProps {
   onChange: (emails: string[]) => void;
-  assignedTo?: Member[];
+  assignedTo?: AssigneeMembers[];
 }
 
 export const AssigneeDisplay = ({
@@ -19,9 +19,9 @@ export const AssigneeDisplay = ({
   // const router = useRouter();
   // const projectId = router.asPath.split("/").slice(-1)[0] as string;
   const [showAddMembers, setShowAddMembers] = useState(false);
-  const [members, setMembers] = useState<Member[]>([]);
+  const [members, setMembers] = useState<AssigneeMembers[]>([]);
 
-  function handleAddedMebmbers(members: Member[]) {
+  function handleAddedMebmbers(members: AssigneeMembers[]) {
     setShowAddMembers(false);
     setMembers(members);
 

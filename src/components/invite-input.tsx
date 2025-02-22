@@ -20,6 +20,7 @@ interface TagInputProps {
   label?: string;
   placeholder?: string;
   error?: string;
+  createDiscription?: string
 }
 
 const tagStyles = {
@@ -35,15 +36,12 @@ const tagStyles = {
 
 export default function InputTags({
   onChange,// Set KokonutUI as default
-  suggestions = [
-    { id: "nextjs", label: "Next.js" },
-    { id: "react", label: "React" },
-    { id: "tailwind", label: "Tailwind" },
-  ],
+  suggestions = [],
   maxTags = 10,
   label = "Tags",
   placeholder = "Add tags...",
   error,
+  createDiscription = "Choose a tag or create one"
 }: TagInputProps) {
   const { tags, addTag, removeTag, removeLastTag } = useTags({
     onChange,
@@ -172,7 +170,7 @@ export default function InputTags({
           >
             <div className="px-2 py-1.5 border-b border-zinc-200 dark:border-zinc-800">
               <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
-                Choose a tag or create one
+                {createDiscription}
               </span>
             </div>
             <div className="p-2 sm:p-1.5 flex flex-wrap gap-2 sm:gap-1.5">

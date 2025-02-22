@@ -28,7 +28,7 @@ const projectColours = [
   "bg-orange-500",
 ];
 const ProjectSidebarSection = () => {
-  const projects = api.project.getAll.useQuery();
+  const projects = api.project.getAll.useQuery(undefined, { retry: 1 });
   const router = useRouter();
 
   const [showInput, setShowInput] = useState(false);
@@ -50,15 +50,6 @@ const ProjectSidebarSection = () => {
     // Focus the input field when it is shown
     setTimeout(() => inputRef.current?.focus(), 0);
   };
-
-  if (projects.isLoading) {
-    // TODO: Better skeleton
-    return <Skeleton className="h-2 w-[70%]" />;
-  }
-
-  if (projects.error) {
-    return <div>Error: {projects.error.message}</div>;
-  }
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -83,7 +74,9 @@ const ProjectSidebarSection = () => {
               setShowInput={setShowInput}
             />
           )}
-          {projects.data &&
+          {projects.isLoading ? (
+            <Skeleton className="h-2 w-[70%]" />
+          ) : projects.data && projects.data.length > 0 ? ( // Check if projects.data is not empty
             projects.data.map((project) => (
               <SidebarMenuItem key={project.name}>
                 <SidebarMenuButton
@@ -104,7 +97,13 @@ const ProjectSidebarSection = () => {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            ))}
+            ))
+          ) : projects.isError && projects.error.data?.code === "NOT_FOUND" ? (
+            <div>Create New Project</div>
+          ) : (
+            <p>No projects found.</p> // Or some other default message
+          )}
+
           {error && <p className="text-red-500">{error}</p>}
         </SidebarMenu>
       </SidebarGroupContent>

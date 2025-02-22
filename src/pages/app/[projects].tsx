@@ -37,9 +37,6 @@ const Projects: NextPageWithLayout = () => {
     // TODO: better handiling
     return <div>Invalid req</div>;
   }
-  if (projects.isError) {
-    return <Button onClick={() => projects.refetch()}>Retry</Button>;
-  }
 
   if (!projects.data || projects.data.length === 0) {
     return (

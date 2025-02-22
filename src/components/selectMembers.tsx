@@ -5,12 +5,12 @@ import React from "react";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { Loader2 } from "lucide-react";
-import { Member } from "~/utils/types";
+import { AssigneeMembers } from "./assignee";
 
 
 
 interface ScrollAreaDemoProps {
-  onSelectionChange: (selectedMembers: Member[]) => void;
+  onSelectionChange: (selectedMembers: AssigneeMembers[]) => void;
 }
 
 export function ScrollAreaDemo({ onSelectionChange }: ScrollAreaDemoProps) {
@@ -20,9 +20,9 @@ export function ScrollAreaDemo({ onSelectionChange }: ScrollAreaDemoProps) {
     { projectId },
     { enabled: !!projectId }
   );
-  const [selectedMembers, setSelectedMembers] = React.useState<Member[]>([]);
+  const [selectedMembers, setSelectedMembers] = React.useState<AssigneeMembers[]>([]);
 
-  const toggleMember = (member: Member) => {
+  const toggleMember = (member: AssigneeMembers) => {
     setSelectedMembers((prev) => {
       const isSelected = prev.some((prevMember) => prevMember.id === member.id);
 
