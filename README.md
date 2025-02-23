@@ -1,31 +1,61 @@
-# Create T3 App
+# T3 Stack Project (Dockerized)
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+This project is a T3 Stack application bootstrapped with `create-t3-app` and configured to run within Docker containers.
 
-## What's next? How do I make an app with this?
+## Technologies Used
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **Next.js:** React framework for server-rendered applications.
+- **NextAuth.js:** Authentication library.
+- **Prisma/Drizzle:** Database ORM (adjust based on your project).
+- **Tailwind CSS:** Utility-first CSS framework.
+- **tRPC:** End-to-end typesafe APIs.
+- **pnpm:** Package manager.
+- **Docker:** Containerization platform.
+- **Docker Compose:** Tool for defining and running multi-container Docker applications.
+- **PostgreSQL:** Database.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Prerequisites
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- **Docker:** Install Docker Desktop or Docker Engine on your system.
+- **pnpm:** Ensure pnpm is installed globally.
 
-## Learn More
+## Setup Instructions
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+1.  **Clone the Repository:**
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+    ```bash
+    git clone https://github.com/farhan294sha/project-managment.git
+    cd project-managment
+    ```
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+2.  Set up your `.env` file
 
-## How do I deploy this?
+    - Duplicate `.env.example` to `.env`
+    - Use `openssl rand -base64 32` to generate a key and add it under `NEXTAUTH_SECRET` in the `.env` file.
+    - Environment variables are loaded from the `.env` file within the `web` container.
+    - Ensure that your `.env` file contains the necessary environment variables for your Next.js app, including the `DATABASE_URL_DEV` that points to the `db` service (e.g., `DATABASE_URL_DEV=postgresql://admin:postgres@db:5432/projectmanagement?schema=public`).
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+3.  **Start Docker Containers:**
 
-> > > > > > > ab689af (initial setup)
+    ```bash
+    docker compose up --build
+    ```
+
+    This command will:
+
+    - Build the Docker image for your Next.js application.
+    - Start the necessary containers (web and database).
+    - Download the PostgreSQL image if needed.
+    - Execute database migrations and start the Next.js development server.
+
+4.  **Access the Application:**
+
+    - Open your web browser and navigate to `http://localhost:3000`.
+
+#### Setting up your first user
+
+```sh
+ pnpm prisma db seed
+```
+
+The above command will populate the local db with dummy users.
