@@ -1,6 +1,5 @@
 import React from "react";
 import { api } from "~/utils/api";
-import { Skeleton } from "../ui/skeleton";
 import { useToast } from "~/hooks/use-toast";
 import { Button } from "react-day-picker";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -14,6 +13,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../ui/accordion";
+import TaskDetailSkeleton from "../loading-skeleton/task-display";
 
 const DisplayTask = ({ taskId }: { taskId?: string }) => {
   const { toast } = useToast();
@@ -30,7 +30,7 @@ const DisplayTask = ({ taskId }: { taskId?: string }) => {
   );
 
   if (isLoading) {
-    return <Skeleton />;
+    return <TaskDetailSkeleton />;
   }
 
   if (isError) {
@@ -40,7 +40,6 @@ const DisplayTask = ({ taskId }: { taskId?: string }) => {
   if (!task) {
     return <div>Task not found</div>;
   }
-
 
   return (
     <div className="h-full space-y-6">
@@ -58,7 +57,7 @@ const DisplayTask = ({ taskId }: { taskId?: string }) => {
               <AccordionItem value="comments">
                 <AccordionTrigger className="text-sm font-medium">
                   <div className="flex gap-2">
-                    <div>Comments</div> 
+                    <div>Comments</div>
                     <span className="text-muted-foreground">2</span>
                   </div>
                 </AccordionTrigger>

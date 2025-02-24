@@ -6,7 +6,8 @@ import "~/styles/globals.css";
 import type { DefaultSession, Session } from "next-auth";
 import type { NextPage } from "next";
 import { api } from "~/utils/api";
-import { Toaster } from "~/components/ui/toaster"
+import { Toaster } from "~/components/ui/toaster";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -22,6 +23,8 @@ type AppPropsWithLayout = AppProps<{ session: Session | null }> & {
   Component: NextPageWithLayout;
 };
 
+const queryClient = new QueryClient();
+
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
@@ -29,15 +32,17 @@ const MyApp: AppType<{ session: Session | null }> = ({
   const getLayout = Component.getLayout ?? ((page) => page);
   return (
     <SessionProvider session={session}>
-      <style jsx global>{`
-        html {
-          font-family: ${GeistSans.style.fontFamily}; // for dalog box
-        }
-      `}</style>
-      <main className={GeistSans.className}>
-        {getLayout(<Component {...pageProps} />)}
-      </main>
-      <Toaster/>
+      <QueryClientProvider client={queryClient}>
+        <style jsx global>{`
+          html {
+            font-family: ${GeistSans.style.fontFamily}; // for dalog box
+          }
+        `}</style>
+        <main className={GeistSans.className}>
+          {getLayout(<Component {...pageProps} />)}
+        </main>
+        <Toaster />
+      </QueryClientProvider>
     </SessionProvider>
   );
 };

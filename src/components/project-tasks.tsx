@@ -1,15 +1,11 @@
-import {
-  DndContext,
-  MouseSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+import { DndContext, MouseSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { TaskSection } from "./task-section";
 import { useProject } from "~/hooks/use-project";
 import { useDragAndDrop } from "~/hooks/use-dragDrop";
+import ProjectTasksSkeleton from "./loading-skeleton/project-task-section";
 
-const ProjectTasks = ({ projectId }: { projectId: string }) => {
-  const { tasks, setTasks } = useProject(projectId);
+const ProjectTasks = () => {
+  const { tasks, setTasks, isLoading } = useProject();
   const { handleDragEnd } = useDragAndDrop(tasks, setTasks);
 
   const sensors = useSensors(
@@ -17,9 +13,8 @@ const ProjectTasks = ({ projectId }: { projectId: string }) => {
       activationConstraint: { delay: 100, tolerance: 10 },
     })
   );
-
-  if (projectId === "NONE") {
-    return null;
+  if (isLoading) {
+    return <ProjectTasksSkeleton />;
   }
   return (
     <DndContext onDragEnd={handleDragEnd} sensors={sensors}>

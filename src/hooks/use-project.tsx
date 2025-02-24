@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Task } from "~/components/task-card";
+import { useActiveProjectState } from "~/store/active-project";
 import { api } from "~/utils/api";
 
-export function useProject(projectId: string) {
+export function useProject() {
+  const { data } = useActiveProjectState();
   const projectTask = api.project.getTask.useQuery(
-    { projectId },
-    { staleTime: 15000 }
+    { projectId: data?.projectId || "" },
+    { enabled: !!data?.projectId }
   );
 
   const [tasks, setTasks] = useState<{
@@ -30,5 +32,5 @@ export function useProject(projectId: string) {
     }
   }, [projectTask.data, projectTask.isSuccess]);
 
-  return { tasks, setTasks };
+  return { tasks, setTasks, isLoading: projectTask.isLoading };
 }

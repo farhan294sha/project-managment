@@ -22,7 +22,6 @@ export const AssigneeDisplay = ({
   const [members, setMembers] = useState<AssigneeMembers[]>([]);
 
   function handleAddedMebmbers(members: AssigneeMembers[]) {
-    setShowAddMembers(false);
     setMembers(members);
 
     const emails = members.map((member) => member.email || "");
@@ -38,31 +37,35 @@ export const AssigneeDisplay = ({
   return (
     <>
       <div className="text-sm text-muted-foreground">Assignee</div>
-      <div className="flex items-center gap-1">
-        <AvatarGroupDisplay members={members} />
-        <Button
-          type="button"
-          variant="purpleIcon"
-          size="purpleIcon"
-          className="h-6 w-6 rounded-full"
-          onClick={() => setShowAddMembers(true)}
-        >
-          <Plus className="h-3 w-3 text-primary/70" />
-        </Button>
-        {showAddMembers && (
-          <div className="relative">
-            <ScrollAreaDemo onSelectionChange={handleAddedMebmbers} />
+      <div className="flex">
+        <div className="flex items-center gap-1 flex-col">
+          <div className="flex gap-1 items-center justify-start">
+            <AvatarGroupDisplay members={members} />
             <Button
               type="button"
-              onClick={() => setShowAddMembers(false)}
-              variant={"ghost"}
-              size={"icon"}
-              className="absolute top-1 right-2"
+              variant="purpleIcon"
+              size="purpleIcon"
+              className="h-6 w-6 rounded-full"
+              onClick={() => setShowAddMembers(true)}
             >
-              <X />
+              <Plus className="h-3 w-3 text-primary/70" />
             </Button>
           </div>
-        )}
+          {showAddMembers && (
+            <div className="relative">
+              <ScrollAreaDemo onSelectionChange={handleAddedMebmbers} />
+              <Button
+                type="button"
+                onClick={() => setShowAddMembers(false)}
+                variant={"ghost"}
+                size={"icon"}
+                className="absolute top-1 right-2"
+              >
+                <X />
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

@@ -1,0 +1,40 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+export function createGlobalState<T>(
+  queryKey: string,
+  initialData: T | null = null
+) {
+  return function () {
+    const queryClient = useQueryClient();
+
+    const { data } = useQuery({
+      queryKey: [queryKey],
+      queryFn: () => Promise.resolve(initialData),
+      refetchInterval: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      refetchIntervalInBackground: false,
+    });
+
+    function setData(data: Partial<T>, callBack?: (newData: T)=> void) {
+      queryClient.setQueryData([queryKey], data);
+      if(callBack){
+        const data = queryClient.getQueryData([queryKey]) as T
+        callBack(data)
+      }
+    }
+
+    function resetData() {
+      queryClient.invalidateQueries({
+        queryKey: [queryKey],
+      });
+
+      queryClient.refetchQueries({
+        queryKey: [queryKey],
+      });
+    }
+
+    return { data, setData, resetData };
+  };
+}

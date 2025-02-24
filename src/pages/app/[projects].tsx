@@ -6,22 +6,11 @@ import ProjectTasks from "~/components/project-tasks";
 import { api } from "~/utils/api";
 import { Button } from "~/components/ui/button";
 import ProjectCreateInput from "~/components/project-create";
-import { useRouter as _useRouter } from "next/router";
-import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const Projects: NextPageWithLayout = () => {
-  const routerPush = useRouter();
-  const router = _useRouter();
   const [showInput, setShowInput] = useState(false);
-  const projects = api.project.getAll.useQuery();
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (projects.isSuccess && projects.data && projects.data.length > 0) {
-      const firstProject = projects.data[0];
-      routerPush.push(`/app/${firstProject?.id}`);
-    }
-  }, [projects.isSuccess, projects.data, routerPush]);
+  const projects = api.project.getAll.useQuery()
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -31,11 +20,12 @@ const Projects: NextPageWithLayout = () => {
     // Focus the input field when it is shown
     setTimeout(() => inputRef.current?.focus(), 0);
   };
-
-  const query = router.query.projects ?? "NONE";
-  if (typeof query !== "string") {
-    // TODO: better handiling
-    return <div>Invalid req</div>;
+  if (projects.isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
   }
 
   if (!projects.data || projects.data.length === 0) {
@@ -72,8 +62,8 @@ const Projects: NextPageWithLayout = () => {
   }
   return (
     <div className="grid h-screen w-full grid-rows-4">
-      <ProjectHeader projectId={query} />
-      <ProjectTasks projectId={query} />
+      <ProjectHeader />
+      <ProjectTasks />
     </div>
   );
 };

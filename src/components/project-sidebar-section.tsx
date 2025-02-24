@@ -15,6 +15,7 @@ import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import ProjectCreateInput from "./project-create";
 import { useRouter } from "next/navigation";
+import { useActiveProjectState } from "~/store/active-project";
 
 const projectColours = [
   "bg-red-500",
@@ -33,14 +34,18 @@ const ProjectSidebarSection = () => {
 
   const [showInput, setShowInput] = useState(false);
 
+  const { data, setData } = useActiveProjectState();
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // Ensure client-side execution
     if (projects.isSuccess && projects.data && projects.data.length > 0) {
       const firstProject = projects.data[0];
-      router.push(`/app/${firstProject?.id}`);
+      if (!data?.projectId) {
+        router.push(`/app/${firstProject?.id}`); 
+        setData({ projectId: firstProject?.id });
+      }
     }
-  }, [projects.isSuccess, projects.data, router]);
+  }, [projects.isSuccess, projects.data, router, data, setData]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -75,7 +80,11 @@ const ProjectSidebarSection = () => {
             />
           )}
           {projects.isLoading ? (
-            <Skeleton className="h-2 w-[70%]" />
+            <div className="space-y-3 ml-2 ">
+              <Skeleton className="h-2 w-[70%]" />
+              <Skeleton className="h-2 w-[70%]" />
+              <Skeleton className="h-2 w-[70%]" />
+            </div>
           ) : projects.data && projects.data.length > 0 ? ( // Check if projects.data is not empty
             projects.data.map((project) => (
               <SidebarMenuItem key={project.name}>
@@ -83,6 +92,8 @@ const ProjectSidebarSection = () => {
                   asChild
                   tooltip={project.name}
                   className="text-muted-foreground"
+                  onClick={() => setData({ projectId: project.id })}
+                  isActive={project.id === data?.projectId}
                 >
                   <Link href={`/app/${project.id}`}>
                     <div

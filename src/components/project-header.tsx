@@ -1,22 +1,29 @@
 import { Calendar, ChevronDown, Filter, Link2, SquarePen } from "lucide-react";
 import { Button } from "./ui/button";
 import { api } from "~/utils/api";
-import { Skeleton } from "./ui/skeleton";
 import InviteMember from "./member-invite";
-type ProjectHeaderProps = {
-  projectId: string;
-};
-const ProjectHeader = ({ projectId }: ProjectHeaderProps) => {
+import ProjectHeaderSkeleton from "./loading-skeleton/project-headers";
+import { useActiveProjectState } from "~/store/active-project";
+
+const ProjectHeader = () => {
+  const { data } = useActiveProjectState();
   const {
     data: project,
     isLoading,
     isError,
     error,
     refetch,
-  } = api.project.getbyId.useQuery({ id: projectId });
+  } = api.project.getbyId.useQuery(
+    { id: data?.projectId || "" },
+    { enabled: !!data?.projectId }
+  );
+
+  if (!data?.projectId) {
+    return <ProjectHeaderSkeleton />; // Show skeleton when projectId is missing
+  }
 
   if (isLoading) {
-    return <Skeleton />;
+    return <ProjectHeaderSkeleton />;
   }
 
   if (isError) {
