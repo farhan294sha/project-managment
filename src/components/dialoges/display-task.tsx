@@ -15,7 +15,7 @@ import {
 } from "../ui/accordion";
 import TaskDetailSkeleton from "../loading-skeleton/task-display";
 
-const DisplayTask = ({ taskId }: { taskId?: string }) => {
+const DisplayTask = ({ taskId }: { taskId: string }) => {
   const { toast } = useToast();
   const {
     data: task,

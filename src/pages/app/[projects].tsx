@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useRef, useState, type ReactElement } from "react";
 import { type NextPageWithLayout } from "../_app";
 import AppPageLayout from ".";
 import ProjectHeader from "~/components/project-header";
@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 
 const Projects: NextPageWithLayout = () => {
   const [showInput, setShowInput] = useState(false);
-  const projects = api.project.getAll.useQuery()
+  const projects = api.project.getAll.useQuery();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 

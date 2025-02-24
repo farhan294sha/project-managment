@@ -1,12 +1,9 @@
-"use client";
-
 import { Search } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Bell, Calendar, MessageCircle } from "lucide-react";
 import UserInfo from "./header-user-info";
 import { signOut } from "next-auth/react";
-
 export default function SearchHeader() {
   return (
     <div className="flex w-full items-center justify-between bg-white px-2 py-2">

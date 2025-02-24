@@ -35,6 +35,7 @@ const tagStyles = {
 };
 
 export default function InputTags({
+  defaultTags,
   onChange,// Set KokonutUI as default
   suggestions = [],
   maxTags = 10,
@@ -46,6 +47,7 @@ export default function InputTags({
   const { tags, addTag, removeTag, removeLastTag } = useTags({
     onChange,
     maxTags,
+    defaultTags
   });
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);

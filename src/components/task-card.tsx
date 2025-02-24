@@ -3,19 +3,15 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Card } from "~/components/ui/card";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import {
-  MoreHorizontal,
-  MessageCircle,
-  File,
-  GripHorizontalIcon,
-} from "lucide-react";
+import { MessageCircle, File, GripHorizontalIcon } from "lucide-react";
 import Image from "next/image";
 import { AvatarGroup } from "./avatar-group";
 import { TaskPriority, TaskStatus } from "@prisma/client";
 import TaskDialoge from "./dialoges/task-dialoge";
 import PriorityDisplay from "./priority-display";
-import { useState } from "react";
 import { cn } from "~/lib/utils";
+import DropdowncardMenu from "./dropdown-card";
+import { useTaskDialoge } from "~/store/task-dialoge";
 export type Task = {
   id: string;
   title: string;
@@ -43,15 +39,17 @@ export function TaskCard({
     useDraggable({
       id,
     });
-
-  const [openDiplayTask, setOpenDiplayTask] = useState(false);
+  const { data: openDiplayTask, setData: setOpenDiplayTask } = useTaskDialoge(
+    id,
+    "DISPLAY"
+  );
+  const { data: showUpdateTask } = useTaskDialoge(id, "UPDATE");
 
   const style = transform
     ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
       }
     : undefined;
-
 
   return (
     <>
@@ -86,16 +84,16 @@ export function TaskCard({
             }
           )}
         >
-          <GripHorizontalIcon className="h-5 w-5"/>
+          <GripHorizontalIcon className="h-5 w-5" />
         </div>
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <PriorityDisplay priority={priority} />
             <h3 className="text-lg font-semibold">{title}</h3>
           </div>
-          <button className="text-gray-500 hover:text-gray-900 ">
-            <MoreHorizontal className="h-5 w-5" />
-          </button>
+        </div>
+        <div className="absolute top-2 right-4">
+          <DropdowncardMenu taskId={id} />
         </div>
 
         <div className="grid grid-cols-2 gap-2">
@@ -139,14 +137,11 @@ export function TaskCard({
           </div>
         </div>
       </Card>
+      {showUpdateTask && (
+        <TaskDialoge taskType="UPDATE" selectedTaskId={id} taskTitle={title} />
+      )}
       {openDiplayTask && (
-        <TaskDialoge
-          open={openDiplayTask}
-          setOpen={setOpenDiplayTask}
-          dialogType="display"
-          selectedTaskId={id}
-          taskTitle={title}
-        />
+        <TaskDialoge taskType="DISPLAY" selectedTaskId={id} taskTitle={title} />
       )}
     </>
   );

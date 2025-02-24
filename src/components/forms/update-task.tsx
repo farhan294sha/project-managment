@@ -1,6 +1,11 @@
-import { useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import TagManager from "../tag-manager";
+import PriorityForm from "./priority-form";
+import DueDateForm from "./due-date-form";
+import { AssigneeDisplay } from "../assignee";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
-
 import {
   Form,
   FormControl,
@@ -8,64 +13,108 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-
-import { Input } from "../ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "../ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-
+} from "../ui/form";
 import { Textarea } from "../ui/textarea";
-import { api } from "~/utils/api";
-import { useTaskSection } from "~/context/task-section-context";
-import { createTaskSchema, TaskFormValues } from "~/utils/schema/task";
-import { useSession } from "next-auth/react";
-import { AssigneeDisplay } from "../assignee";
-import TagManager from "../tag-manager";
-import DueDateForm from "./due-date-form";
-import PriorityForm from "./priority-form";
-import { useActiveProjectState } from "~/store/active-project";
+import { Input } from "../ui/input";
+import { UpdateFormTypes, updateTaskSchema } from "~/utils/schema/task";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { api, RouterOutputs } from "~/utils/api";
 import { useToast } from "~/hooks/use-toast";
+import { useActiveProjectState } from "~/store/active-project";
+import { useSession } from "next-auth/react";
+import { useTaskSection } from "~/context/task-section-context";
+import TaskDetailSkeleton from "../loading-skeleton/task-display";
 
-export default function TaskForm({ onSave }: { onSave: () => void }) {
+const UpdateTask = ({
+  taskId,
+  onSave,
+}: {
+  taskId: string;
+  onSave: () => void;
+}) => {
   const taskSection = useTaskSection() as "Todo" | "InProgress" | "Done";
   const utils = api.useUtils();
   const { data: session } = useSession();
   const { image, name } = session?.user || {};
   const { data: projectId } = useActiveProjectState();
   const { toast } = useToast();
-  // Create task mutation
-  const createTaskMutation = api.task.create.useMutation({
-    async onSuccess(data, variables) {
-      await utils.project.getTask.invalidate({
-        projectId: variables.projectId,
-      });
+
+  const [taskDetails, setTaskDetails] = useState<
+    RouterOutputs["task"]["getbyId"] | null
+  >(null);
+  const [loading, setLoading] = useState(true); // Loading state
+
+  useEffect(() => {
+    const fetchTaskDetails = async () => {
+      setLoading(true);
+      try {
+        const details = await utils.task.getbyId.ensureData({ taskId: taskId });
+        setTaskDetails(details);
+      } catch (error) {
+        console.error("Error fetching task details:", error);
+        toast({
+          title: "Error fetching task details",
+          description: "Failed to load task.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTaskDetails();
+  }, [taskId, toast, utils]);
+
+  const updateMutation = api.task.update.useMutation({
+    async onSuccess(variables) {
+      await utils.task.getbyId.invalidate({ taskId: variables.id });
+      toast({ title: "Task is updated" });
       onSave();
     },
     onError(error) {
-      toast({
-        title: "Something went worng",
-        description: error.message,
-      });
+      toast({ title: "Something went worng", description: error.message });
     },
   });
 
-  const form = useForm<TaskFormValues>({
-    resolver: zodResolver(createTaskSchema),
+  console.log("TASK DETAILS", taskDetails);
+
+  const form = useForm<UpdateFormTypes>({
+    resolver: zodResolver(updateTaskSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      deadline: undefined,
-      priority: "Medium",
+      id: taskId,
+      title: taskDetails?.title,
+      description: taskDetails?.description ?? undefined,
+      deadline: taskDetails?.deadline ?? undefined,
+      priority: taskDetails?.priority,
       taskStatus: taskSection,
       projectId: projectId?.projectId ?? "",
+      memberEmails: taskDetails?.assignedTo.map((member) => member.email),
+      tags: taskDetails?.tags.map((tag) => tag.name),
     },
   });
 
-  async function onSubmit(data: TaskFormValues) {
+  useEffect(() => {
+    if (taskDetails) {
+      form.reset({
+        id: taskId,
+        title: taskDetails.title ?? "",
+        description: taskDetails.description ?? "",
+        deadline: taskDetails.deadline
+          ? new Date(taskDetails.deadline)
+          : undefined,
+        priority: taskDetails.priority ?? "Medium",
+        taskStatus: taskSection,
+        projectId: projectId?.projectId ?? "",
+        memberEmails:
+          taskDetails.assignedTo?.map((member) => member.email) ?? [],
+      });
+    }
+  }, [taskDetails, form, taskId, taskSection, projectId]);
+
+  async function onSubmit(data: UpdateFormTypes) {
     if (!projectId?.projectId) return;
     try {
-      await createTaskMutation.mutateAsync({
+      await updateMutation.mutateAsync({
         ...data,
         projectId: projectId.projectId,
       });
@@ -74,7 +123,11 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
     }
   }
 
-  const isPending = createTaskMutation.isPending;
+  if (loading) {
+    return <TaskDetailSkeleton />;
+  }
+
+  const isPending = updateMutation.isPending;
 
   return (
     <Form {...form}>
@@ -132,6 +185,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
               <div className="space-y-2">
                 <AssigneeDisplay
                   onChange={(emails) => form.setValue("memberEmails", emails)}
+                  assignedTo={taskDetails?.assignedTo.map((assignee)=> assignee)}
                 />
               </div>
 
@@ -146,6 +200,12 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
               <div className="space-y-2">
                 {/* <InputTags/> */}
                 <TagManager
+                  defaultTags={
+                    taskDetails?.tags.map((tag) => ({
+                      id: tag.id,
+                      label: tag.name,
+                    })) ?? []
+                  }
                   onChange={(tags) => {
                     console.log("Tags from on chnage", tags);
                     form.setValue("tags", tags);
@@ -178,4 +238,6 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
       </form>
     </Form>
   );
-}
+};
+
+export default UpdateTask;

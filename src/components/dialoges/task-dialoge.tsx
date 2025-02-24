@@ -4,74 +4,56 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-
-import { Dispatch, SetStateAction } from "react";
-import TaskForm from "../forms/add-task-form";
 import { api } from "~/utils/api";
-import { useRouter } from "next/router";
 import { useTaskSection } from "~/context/task-section-context";
 import { Skeleton } from "../ui/skeleton";
-import DisplayTask from "./display-task";
+import { useActiveProjectState } from "~/store/active-project";
+import { useTaskDialoge } from "~/store/task-dialoge";
+import TaskContent from "../task-content";
 
 type DialogProps = {
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  dialogType: "add" | "update" | "display";
   selectedTaskId?: string;
   taskTitle?: string;
+  taskType: "UPDATE" | "DISPLAY" | "CREATE";
 };
 
 export default function TaskDialoge({
-  open,
-  setOpen,
-  dialogType,
   selectedTaskId,
+  taskType,
   taskTitle,
 }: DialogProps) {
-  const router = useRouter();
   const taskSection = useTaskSection();
+  const qureyClient = api.useUtils();
 
-  const projectId = router.query.projects as string;
-  const project = api.project.getbyId.useQuery(
-    { id: projectId },
-    {
-      enabled: !!projectId,
-    }
+  const { data: projectId } = useActiveProjectState();
+  const { data, setData } = useTaskDialoge(
+    taskType === "CREATE" ? taskSection : (selectedTaskId ?? ""),
+    taskType
   );
-  function handleSubmit() {
-    setOpen(false);
+  if (!data) {
+    return null;
   }
+  const project = qureyClient.project.getbyId.getData({
+    id: projectId?.projectId ?? "",
+  });
 
-
-  const renderContent = () => {
-    switch (dialogType) {
-      case "add":
-        return <TaskForm onSave={handleSubmit} />;
-      case "update":
-        return <TaskForm onSave={handleSubmit} />;
-      case "display":
-        return <DisplayTask taskId={selectedTaskId} />;
-      default:
-        return <TaskForm onSave={handleSubmit} />;
-    }
-  };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={data} onOpenChange={setData}>
       <DialogContent className="max-w-5xl gap-0 p-0 font-sans h-[80%] overflow-hidden flex flex-col">
         <DialogHeader className="border-b p-4 max-h-16">
           <DialogTitle>
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
-                {project.isLoading ? (
-                  <Skeleton />
+                {project ? (
+                  `${project?.name}/${taskSection}/${taskTitle}`
                 ) : (
-                  `${project.data?.name}/${taskSection}/${taskTitle}`
+                  <Skeleton />
                 )}
               </div>
             </div>
           </DialogTitle>
         </DialogHeader>
-        {renderContent()}
+        <TaskContent taskType={taskType} taskId={selectedTaskId} />
       </DialogContent>
     </Dialog>
   );

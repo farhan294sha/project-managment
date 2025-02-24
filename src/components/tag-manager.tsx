@@ -5,6 +5,7 @@ import InputTags from "./invite-input";
 
 interface TagManagerProps {
   onChange: (tags: string[]) => void;
+  defaultTags?: Tag[]
 }
 
 interface Tag {
@@ -13,11 +14,12 @@ interface Tag {
   color?: string;
 }
 
-export default function TagManager({ onChange }: TagManagerProps) {
+export default function TagManager({ onChange, defaultTags }: TagManagerProps) {
   const { toast } = useToast();
   const router = useRouter();
   const apiClient = api.useUtils();
   const projectId = router.query.projects as string;
+  console.log("DEfalut dtags",defaultTags)
   const {
     data: projectTags,
     isError,
@@ -69,6 +71,7 @@ export default function TagManager({ onChange }: TagManagerProps) {
           : undefined
       }
       error={isError && error.message ? error.message : undefined}
+      defaultTags={defaultTags}
     />
   );
 }

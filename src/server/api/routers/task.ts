@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { createTaskSchema } from "~/utils/schema/task";
+import { createTaskSchema, updateTaskSchema } from "~/utils/schema/task";
 import { TRPCError } from "@trpc/server";
-import { tree } from "next/dist/build/templates/app-page";
 
 const assignMemberSchema = z.object({
   taskId: z.string().min(1, "Task ID is required"), // Required task ID
@@ -67,7 +66,7 @@ export const taskRouter = createTRPCRouter({
             connect: assignedToUsers.map((user) => ({ id: user.id })),
           },
           tags: {
-            connectOrCreate: tags.map((tagName) => ({
+            connectOrCreate: tags?.map((tagName) => ({
               where: { name: tagName, projectId: projectId },
               create: { name: tagName, projectId: projectId },
             })),
@@ -216,5 +215,104 @@ export const taskRouter = createTRPCRouter({
       }
 
       return task;
+    }),
+  update: protectedProcedure
+    .input(updateTaskSchema)
+    .mutation(async ({ ctx, input }) => {
+      const {
+        id,
+        title,
+        description,
+        priority,
+        deadline,
+        projectId,
+        memberEmails,
+        taskStatus,
+        tags,
+      } = input;
+
+      const existingTask = await ctx.db.task.findUnique({
+        where: { id: id },
+        include: {
+          assignedTo: true,
+          tags: true,
+        },
+      });
+
+      if (!existingTask) {
+        throw new TRPCError({
+          message: "Task not found",
+          code: "NOT_FOUND",
+        });
+      }
+
+      if (projectId && projectId !== existingTask.projectId) {
+        const project = await ctx.db.project.findUnique({
+          where: { id: projectId },
+        });
+
+        if (!project) {
+          throw new TRPCError({
+            message: "Project not found",
+            code: "NOT_FOUND",
+          });
+        }
+      }
+
+      let assignedToUsers: { email: string | null; id: string }[] = [];
+      if (memberEmails && memberEmails.length > 0) {
+        assignedToUsers = await ctx.db.user.findMany({
+          where: { email: { in: memberEmails } },
+          select: { email: true, id: true },
+        });
+
+        if (assignedToUsers.length !== memberEmails.length) {
+          const foundEmails = assignedToUsers.map((user) => user.email);
+          const missingEmails = memberEmails.filter(
+            (email) => !foundEmails.includes(email)
+          );
+          throw new TRPCError({
+            message: `Users with the following emails not found: ${missingEmails.join(
+              ", "
+            )}`,
+            code: "NOT_FOUND",
+          });
+        }
+      }
+
+      const updatedTask = await ctx.db.task.update({
+        where: { id: id },
+        data: {
+          title: title,
+          description: description,
+          priority: priority,
+          deadline: deadline,
+          projectId: projectId,
+          status: taskStatus,
+          assignedTo: memberEmails
+            ? {
+                set: assignedToUsers.map((user) => ({ id: user.id })),
+              }
+            : undefined,
+          tags: tags
+            ? {
+                set: tags.map((tagName) => ({ name: tagName })),
+              }
+            : undefined,
+        },
+        include: {
+          assignedTo: {
+            select: {
+              email: true,
+              image: true,
+              name: true,
+              id: true,
+            },
+          },
+          tags: true,
+        },
+      });
+
+      return updatedTask;
     }),
 });

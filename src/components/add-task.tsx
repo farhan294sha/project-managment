@@ -2,19 +2,22 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
 import TaskDialoge from "./dialoges/task-dialoge";
+import { useTaskSection } from "~/context/task-section-context";
+import { useTaskDialoge } from "~/store/task-dialoge";
 
 const AddTask = () => {
-  const [open, setOpen] = useState(false);
+  const taskSection = useTaskSection();
+  const { data, setData } = useTaskDialoge(taskSection ?? "", "CREATE");
   return (
     <>
       <Button
         variant={"purpleIcon"}
         size={"purpleIcon"}
-        onClick={() => setOpen(true)}
+        onClick={() => setData(true)}
       >
         <Plus className="h-4 w-4 text-primary/70" />
       </Button>
-      <TaskDialoge open={open} setOpen={setOpen} dialogType="add" />
+      <TaskDialoge taskType="CREATE" />
     </>
   );
 };
