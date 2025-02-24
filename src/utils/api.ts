@@ -30,7 +30,6 @@ export interface SSRContext extends NextPageContext {
   status?: number;
 }
 
-
 /** A set of type-safe react-query hooks for your tRPC API. */
 export const api = createTRPCNext<AppRouter, SSRContext>({
   config({ ctx }) {
@@ -46,8 +45,8 @@ export const api = createTRPCNext<AppRouter, SSRContext>({
         // adds pretty logs to your console in development and logs errors in production
         loggerLink({
           enabled: (opts) =>
-            process.env.NODE_ENV === 'development' ||
-            (opts.direction === 'down' && opts.result instanceof Error),
+            process.env.NODE_ENV === "development" ||
+            (opts.direction === "down" && opts.result instanceof Error),
         }),
         unstable_httpBatchStreamLink({
           url: `${getBaseUrl()}/api/trpc`,
@@ -64,6 +63,7 @@ export const api = createTRPCNext<AppRouter, SSRContext>({
 
             const {
               // If you're using Node 18 before 18.15.0, omit the "connection" header
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
               connection: _connection,
               ...headers
             } = ctx.req.headers;
@@ -78,7 +78,11 @@ export const api = createTRPCNext<AppRouter, SSRContext>({
       /**
        * @see https://tanstack.com/query/v5/docs/reference/QueryClient
        */
-      queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
+      queryClientConfig: {
+        defaultOptions: {
+          queries: { staleTime: 60, refetchOnWindowFocus: false },
+        },
+      },
     };
   },
   /**
