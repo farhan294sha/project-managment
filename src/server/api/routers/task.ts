@@ -2,6 +2,8 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { createTaskSchema, updateTaskSchema } from "~/utils/schema/task";
 import { TRPCError } from "@trpc/server";
+import { TaskStatus } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const assignMemberSchema = z.object({
   taskId: z.string().min(1, "Task ID is required"), // Required task ID
@@ -52,39 +54,49 @@ export const taskRouter = createTRPCRouter({
           });
         }
       }
-
-      const task = await ctx.db.task.create({
-        data: {
-          title,
-          description,
-          priority,
-          deadline,
-          createdById: ctx.session.user.id,
-          projectId,
-          status: taskStatus,
-          assignedTo: {
-            connect: assignedToUsers.map((user) => ({ id: user.id })),
-          },
-          tags: {
-            connectOrCreate: tags?.map((tagName) => ({
-              where: { name: tagName, projectId: projectId },
-              create: { name: tagName, projectId: projectId },
-            })),
-          },
-        },
-        include: {
-          assignedTo: {
-            select: {
-              email: true,
-              image: true,
-              name: true,
-              id: true,
+      try {
+        const task = await ctx.db.task.create({
+          data: {
+            title,
+            description,
+            priority,
+            deadline,
+            createdById: ctx.session.user.id,
+            projectId,
+            status: taskStatus,
+            assignedTo: {
+              connect: assignedToUsers.map((user) => ({ id: user.id })),
+            },
+            tags: {
+              connectOrCreate: tags?.map((tagName) => ({
+                where: { name: tagName, projectId: projectId },
+                create: { name: tagName, projectId: projectId },
+              })),
             },
           },
-        },
-      });
+          include: {
+            assignedTo: {
+              select: {
+                email: true,
+                image: true,
+                name: true,
+                id: true,
+              },
+            },
+          },
+        });
 
-      return task;
+        return task;
+      } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          if (error.code === "P2025") {
+            throw new TRPCError({
+              message: "Task is not found",
+              code: "NOT_FOUND",
+            });
+          }
+        }
+      }
     }),
   assignMember: protectedProcedure
     .input(assignMemberSchema)
@@ -279,40 +291,143 @@ export const taskRouter = createTRPCRouter({
           });
         }
       }
-
-      const updatedTask = await ctx.db.task.update({
-        where: { id: id },
-        data: {
-          title: title,
-          description: description,
-          priority: priority,
-          deadline: deadline,
-          projectId: projectId,
-          status: taskStatus,
-          assignedTo: memberEmails
-            ? {
-                set: assignedToUsers.map((user) => ({ id: user.id })),
-              }
-            : undefined,
-          tags: tags
-            ? {
-                set: tags.map((tagName) => ({ name: tagName })),
-              }
-            : undefined,
-        },
-        include: {
-          assignedTo: {
-            select: {
-              email: true,
-              image: true,
-              name: true,
-              id: true,
-            },
+      try {
+        const updatedTask = await ctx.db.task.update({
+          where: { id: id },
+          data: {
+            title: title,
+            description: description,
+            priority: priority,
+            deadline: deadline,
+            projectId: projectId,
+            status: taskStatus,
+            assignedTo: memberEmails
+              ? {
+                  set: assignedToUsers.map((user) => ({ id: user.id })),
+                }
+              : undefined,
+            tags: tags
+              ? {
+                  set: tags.map((tagName) => ({ name: tagName })),
+                }
+              : undefined,
           },
-          tags: true,
-        },
-      });
+          include: {
+            assignedTo: {
+              select: {
+                email: true,
+                image: true,
+                name: true,
+                id: true,
+              },
+            },
+            tags: true,
+          },
+        });
 
-      return updatedTask;
+        return updatedTask;
+      } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          if (error.code === "P2025") {
+            throw new TRPCError({
+              message: "Task is not found",
+              code: "NOT_FOUND",
+            });
+          }
+        }
+        throw new TRPCError({
+          message: "Something went wrong",
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
+    }),
+
+  updateTaskStatus: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.string(),
+        status: z.nativeEnum(TaskStatus),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { taskId, status } = input;
+      try {
+        const updatedTask = await ctx.db.task.update({
+          where: {
+            id: taskId,
+          },
+          data: {
+            status: status,
+          },
+        });
+
+        return updatedTask;
+      } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          if (error.code === "P2025") {
+            throw new TRPCError({
+              message: "Task is not found",
+              code: "NOT_FOUND",
+            });
+          }
+        }
+        throw new TRPCError({
+          message: "Something went wrong",
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { taskId } = input;
+      const userId = ctx.session.user.id;
+      try {
+        const task = await ctx.db.task.findUnique({
+          where: {
+            id: taskId,
+            createdById: userId,
+          },
+        });
+
+        if (!task) {
+          const exists = await ctx.db.task.findUnique({
+            where: { id: taskId },
+          });
+          if (exists) {
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "You are not authorized to delete this task.",
+            });
+          } else {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Task not found.",
+            });
+          }
+        }
+
+        const data = ctx.db.task.delete({
+          where: {
+            id: taskId,
+            createdById: ctx.session.user.id,
+          },
+        });
+        return data;
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        console.error("Error deleting task:", error); // Log the error for debugging
+
+        throw new TRPCError({
+          message: "Something went wrong while deleting the task.",
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
     }),
 });

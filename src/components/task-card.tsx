@@ -11,7 +11,8 @@ import TaskDialoge from "./dialoges/task-dialoge";
 import PriorityDisplay from "./priority-display";
 import { cn } from "~/lib/utils";
 import DropdowncardMenu from "./dropdown-card";
-import { useTaskDialoge } from "~/store/task-dialoge";
+import { useTaskDeleteAlert, useTaskDialoge } from "~/store/task-dialoge";
+import { DeleteTaskAlertDialoge } from "./task-delete-dialoge";
 export type Task = {
   id: string;
   title: string;
@@ -44,6 +45,8 @@ export function TaskCard({
     "DISPLAY"
   );
   const { data: showUpdateTask } = useTaskDialoge(id, "UPDATE");
+
+  const { data: isDeleteAlertOpen } = useTaskDeleteAlert(id);
 
   const style = transform
     ? {
@@ -94,6 +97,7 @@ export function TaskCard({
         </div>
         <div className="absolute top-2 right-4">
           <DropdowncardMenu taskId={id} />
+          {isDeleteAlertOpen && <DeleteTaskAlertDialoge taskId={id} />}
         </div>
 
         <div className="grid grid-cols-2 gap-2">

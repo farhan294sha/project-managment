@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Loader2, PlusIcon, X } from "lucide-react";
 import AvatarGroupDisplay from "./avatar-group-display";
@@ -43,7 +43,6 @@ const InviteMember = ({
     if (result.success) {
       setTagError("");
       setEmails(result.data);
-      console.log("Valid emails:", result.data);
       // ... your API call
     } else {
       setTagError("Enter valid emails");

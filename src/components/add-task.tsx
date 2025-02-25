@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
 import TaskDialoge from "./dialoges/task-dialoge";
@@ -7,7 +7,7 @@ import { useTaskDialoge } from "~/store/task-dialoge";
 
 const AddTask = () => {
   const taskSection = useTaskSection();
-  const { data, setData } = useTaskDialoge(taskSection ?? "", "CREATE");
+  const { setData } = useTaskDialoge(taskSection ?? "", "CREATE");
   return (
     <>
       <Button

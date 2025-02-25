@@ -13,6 +13,7 @@ import { db } from "~/server/db";
 import { getServerSession, type Session } from "next-auth";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { authOptions } from "~/pages/api/auth/[...nextauth]";
+import { ZodError } from "zod";
 
 interface CreateContextOptions {
   session: Session | null;
@@ -92,6 +93,30 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 
   return result;
 });
+
+const globalErrorHandler = t.middleware(async ({ next }) => {
+  try {
+    return await next();
+  } catch (err) {
+    if (err instanceof TRPCError) {
+      throw err;
+    }
+
+    if (err instanceof ZodError) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Invalid input: ' + err.errors.map((e) => e.message).join(', '),
+      });
+    }
+
+    console.error('Unhandled error in tRPC procedure:', err);
+
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'An unexpected error occurred.',
+    });
+  }
+});
 /**
  * Protected (authenticated) procedure
  *
@@ -111,7 +136,7 @@ export const protectedProcedure = t.procedure
         session: { ...ctx.session, user: ctx.session.user },
       },
     });
-  });
+  }).use(globalErrorHandler);
 /**
  * Public (unauthenticated) procedure
  *

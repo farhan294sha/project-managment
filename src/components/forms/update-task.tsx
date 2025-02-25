@@ -76,7 +76,6 @@ const UpdateTask = ({
     },
   });
 
-  console.log("TASK DETAILS", taskDetails);
 
   const form = useForm<UpdateFormTypes>({
     resolver: zodResolver(updateTaskSchema),
@@ -207,7 +206,6 @@ const UpdateTask = ({
                     })) ?? []
                   }
                   onChange={(tags) => {
-                    console.log("Tags from on chnage", tags);
                     form.setValue("tags", tags);
                   }}
                 />

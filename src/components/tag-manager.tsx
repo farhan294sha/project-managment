@@ -19,7 +19,6 @@ export default function TagManager({ onChange, defaultTags }: TagManagerProps) {
   const router = useRouter();
   const apiClient = api.useUtils();
   const projectId = router.query.projects as string;
-  console.log("DEfalut dtags",defaultTags)
   const {
     data: projectTags,
     isError,

@@ -40,6 +40,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
       await utils.project.getTask.invalidate({
         projectId: variables.projectId,
       });
+      toast({title: "Task created succefully"})
       onSave();
     },
     onError(error) {
@@ -147,7 +148,6 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                 {/* <InputTags/> */}
                 <TagManager
                   onChange={(tags) => {
-                    console.log("Tags from on chnage", tags);
                     form.setValue("tags", tags);
                   }}
                 />
