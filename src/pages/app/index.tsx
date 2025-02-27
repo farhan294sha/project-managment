@@ -31,17 +31,17 @@ const AppPageLayout = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <div>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <header className="flex h-16 items-center gap-4 border-b px-6">
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset className="flex h-screen ">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <header className="border-b px-4 py-2 flex items-center justify-between">
             <SearchHeader />
           </header>
-          <main className="flex-1 px-7 pt-6">{children}</main>
-        </SidebarInset>
-      </SidebarProvider>
-    </div>
+          {children}
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 export default AppPageLayout;

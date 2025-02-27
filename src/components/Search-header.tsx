@@ -6,7 +6,7 @@ import UserInfo from "./header-user-info";
 import { signOut } from "next-auth/react";
 export default function SearchHeader() {
   return (
-    <div className="flex w-full items-center justify-between bg-white px-2 py-2">
+    <div className="flex w-full items-center justify-between px-2 py-2">
       <div className="relative max-w-md flex-1">
         <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
           <Search className="h-4 w-4 text-muted-foreground" />

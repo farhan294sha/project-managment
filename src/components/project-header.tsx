@@ -40,8 +40,8 @@ const ProjectHeader = () => {
   }
 
   return (
-    <div className="flex h-full justify-between pt-6">
-      <div className="">
+    <div className="flex justify-between py-6 px-6 bg-gradient-to-t from-transparent from-5%% to-white to-40% sticky top-0 z-50">
+      <div >
         <div className="flex items-center gap-4">
           <div className="scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl">
             {project.name}

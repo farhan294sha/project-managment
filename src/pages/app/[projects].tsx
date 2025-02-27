@@ -61,8 +61,9 @@ const Projects: NextPageWithLayout = () => {
     );
   }
   return (
-    <div className="grid h-screen w-full grid-rows-4">
-      <ProjectHeader />
+    <div className="overflow-auto">
+
+        <ProjectHeader />
       <ProjectTasks />
     </div>
   );
