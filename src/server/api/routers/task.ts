@@ -4,6 +4,7 @@ import { createTaskSchema, updateTaskSchema } from "~/utils/schema/task";
 import { TRPCError } from "@trpc/server";
 import { TaskStatus } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { validateUsersByEmail } from "~/server/utils/users";
 
 const assignMemberSchema = z.object({
   taskId: z.string().min(1, "Task ID is required"), // Required task ID
@@ -20,14 +21,15 @@ export const taskRouter = createTRPCRouter({
         priority,
         deadline,
         projectId,
-        memberEmails,
+        memberEmails = [],
         taskStatus,
-        tags,
-        files,
+        tags = [],
+        files = [],
       } = input;
 
       const project = await ctx.db.project.findUnique({
         where: { id: projectId },
+        select: { id: true },
       });
 
       if (!project) {
@@ -37,78 +39,51 @@ export const taskRouter = createTRPCRouter({
         });
       }
 
-      let assignedToUsers: { email: string | null; id: string }[] = [];
-      if (memberEmails && memberEmails.length > 0) {
-        assignedToUsers = await ctx.db.user.findMany({
-          where: { email: { in: memberEmails } },
-          select: { email: true, id: true },
-        });
-        // cheaking db if revied email has user
-        if (assignedToUsers.length !== memberEmails.length) {
-          const foundEmails = assignedToUsers.map((user) => user.email);
-          const missingEmails = memberEmails.filter(
-            (email) => !foundEmails.includes(email)
-          );
-          throw new TRPCError({
-            message: `Users with the following emails not found: ${missingEmails.join(", ")}`,
-            code: "NOT_FOUND",
-          });
-        }
-      }
+      const { userIds: assignedToUsers } = await validateUsersByEmail(
+        ctx.db,
+        memberEmails
+      );
 
-      const filteredImageId =
-        files &&
-        (files.filter((file) => file.imageId !== null) as {
-          imageId: string;
-        }[]);
-      try {
-        const task = await ctx.db.task.create({
-          data: {
-            title,
-            description,
-            priority,
-            deadline,
-            createdById: ctx.session.user.id,
-            projectId,
-            status: taskStatus,
-            assignedTo: {
-              connect: assignedToUsers.map((user) => ({ id: user.id })),
-            },
-            tags: {
-              connectOrCreate: tags?.map((tagName) => ({
-                where: { name: tagName, projectId: projectId },
-                create: { name: tagName, projectId: projectId },
-              })),
-            },
-            files: {
-              connect:
-                filteredImageId &&
-                filteredImageId.map((file) => ({ id: file.imageId })),
+      const filteredImageId = files
+        .filter((file): file is { imageId: string } => file.imageId !== null)
+        .map((file) => ({ id: file.imageId }));
+
+      const task = await ctx.db.task.create({
+        data: {
+          title,
+          description,
+          priority,
+          deadline,
+          createdById: ctx.session.user.id,
+          projectId,
+          status: taskStatus || "Todo",
+          assignedTo:
+            assignedToUsers.length > 0
+              ? { connect: assignedToUsers }
+              : undefined,
+          tags: {
+            connectOrCreate: tags?.map((tagName) => ({
+              where: { name: tagName, projectId: projectId },
+              create: { name: tagName, projectId: projectId },
+            })),
+          },
+          files: {
+            connect: filteredImageId,
+          },
+        },
+        include: {
+          assignedTo: {
+            select: {
+              email: true,
+              image: true,
+              name: true,
+              id: true,
             },
           },
-          include: {
-            assignedTo: {
-              select: {
-                email: true,
-                image: true,
-                name: true,
-                id: true,
-              },
-            },
-          },
-        });
+        },
+      });
 
-        return task;
-      } catch (error) {
-        if (error instanceof PrismaClientKnownRequestError) {
-          if (error.code === "P2025") {
-            throw new TRPCError({
-              message: "Task is not found",
-              code: "NOT_FOUND",
-            });
-          }
-        }
-      }
+      return task;
     }),
   assignMember: protectedProcedure
     .input(assignMemberSchema)
@@ -126,26 +101,16 @@ export const taskRouter = createTRPCRouter({
         throw new TRPCError({ message: "Task not found", code: "NOT_FOUND" });
       }
 
-      const users = await ctx.db.user.findMany({
-        where: { email: { in: memberEmails } },
-      });
-
-      if (users.length !== memberEmails.length) {
-        const foundEmails = users.map((user) => user.email);
-        const missingEmails = memberEmails.filter(
-          (email) => !foundEmails.includes(email)
-        );
-        throw new TRPCError({
-          message: `Users with the following emails not found: ${missingEmails.join(", ")}`,
-          code: "NOT_FOUND",
-        });
-      }
+      const { userIds: assignedToUsers } = await validateUsersByEmail(
+        ctx.db,
+        memberEmails
+      );
 
       const updatedTask = await ctx.db.task.update({
         where: { id: taskId },
         data: {
           assignedTo: {
-            connect: users.map((user) => ({ id: user.id })),
+            connect: assignedToUsers,
           },
         },
         include: {
@@ -249,18 +214,14 @@ export const taskRouter = createTRPCRouter({
         description,
         priority,
         deadline,
-        projectId,
-        memberEmails,
+        memberEmails = [],
         taskStatus,
-        tags,
+        tags = [],
       } = input;
 
       const existingTask = await ctx.db.task.findUnique({
         where: { id: id },
-        include: {
-          assignedTo: true,
-          tags: true,
-        },
+        select: { projectId: true },
       });
 
       if (!existingTask) {
@@ -270,88 +231,40 @@ export const taskRouter = createTRPCRouter({
         });
       }
 
-      if (projectId && projectId !== existingTask.projectId) {
-        const project = await ctx.db.project.findUnique({
-          where: { id: projectId },
-        });
+      const { userIds: assignedToUsers } = await validateUsersByEmail(
+        ctx.db,
+        memberEmails
+      );
 
-        if (!project) {
-          throw new TRPCError({
-            message: "Project not found",
-            code: "NOT_FOUND",
-          });
-        }
-      }
-
-      let assignedToUsers: { email: string | null; id: string }[] = [];
-      if (memberEmails && memberEmails.length > 0) {
-        assignedToUsers = await ctx.db.user.findMany({
-          where: { email: { in: memberEmails } },
-          select: { email: true, id: true },
-        });
-
-        if (assignedToUsers.length !== memberEmails.length) {
-          const foundEmails = assignedToUsers.map((user) => user.email);
-          const missingEmails = memberEmails.filter(
-            (email) => !foundEmails.includes(email)
-          );
-          throw new TRPCError({
-            message: `Users with the following emails not found: ${missingEmails.join(
-              ", "
-            )}`,
-            code: "NOT_FOUND",
-          });
-        }
-      }
-      try {
-        const updatedTask = await ctx.db.task.update({
-          where: { id: id },
-          data: {
-            title: title,
-            description: description,
-            priority: priority,
-            deadline: deadline,
-            projectId: projectId,
-            status: taskStatus,
-            assignedTo: memberEmails
-              ? {
-                  set: assignedToUsers.map((user) => ({ id: user.id })),
-                }
+      const updatedTask = await ctx.db.task.update({
+        where: { id: id },
+        data: {
+          title: title,
+          description: description,
+          priority: priority,
+          deadline: deadline,
+          status: taskStatus,
+          assignedTo:
+            assignedToUsers.length > 0 ? { set: assignedToUsers } : undefined,
+          tags:
+            tags.length > 0
+              ? { set: tags.map((tag) => ({ name: tag })) }
               : undefined,
-            tags: tags
-              ? {
-                  set: tags.map((tagName) => ({ name: tagName })),
-                }
-              : undefined,
-          },
-          include: {
-            assignedTo: {
-              select: {
-                email: true,
-                image: true,
-                name: true,
-                id: true,
-              },
+        },
+        include: {
+          assignedTo: {
+            select: {
+              email: true,
+              image: true,
+              name: true,
+              id: true,
             },
-            tags: true,
           },
-        });
+          tags: true,
+        },
+      });
 
-        return updatedTask;
-      } catch (error) {
-        if (error instanceof PrismaClientKnownRequestError) {
-          if (error.code === "P2025") {
-            throw new TRPCError({
-              message: "Task is not found",
-              code: "NOT_FOUND",
-            });
-          }
-        }
-        throw new TRPCError({
-          message: "Something went wrong",
-          code: "INTERNAL_SERVER_ERROR",
-        });
-      }
+      return updatedTask;
     }),
 
   updateTaskStatus: protectedProcedure
@@ -398,48 +311,37 @@ export const taskRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { taskId } = input;
       const userId = ctx.session.user.id;
-      try {
-        const task = await ctx.db.task.findUnique({
-          where: {
-            id: taskId,
-            createdById: userId,
-          },
-        });
+      const task = await ctx.db.task.findUnique({
+        where: {
+          id: taskId,
+          createdById: userId,
+        },
+      });
 
-        if (!task) {
-          const exists = await ctx.db.task.findUnique({
-            where: { id: taskId },
+      if (!task) {
+        const exists = await ctx.db.task.findUnique({
+          where: { id: taskId },
+        });
+        if (exists) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "You are not authorized to delete this task.",
           });
-          if (exists) {
-            throw new TRPCError({
-              code: "UNAUTHORIZED",
-              message: "You are not authorized to delete this task.",
-            });
-          } else {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: "Task not found.",
-            });
-          }
+        } else {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Task not found.",
+          });
         }
-
-        const data = ctx.db.task.delete({
-          where: {
-            id: taskId,
-            createdById: ctx.session.user.id,
-          },
-        });
-        return data;
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
-        console.error("Error deleting task:", error); // Log the error for debugging
-
-        throw new TRPCError({
-          message: "Something went wrong while deleting the task.",
-          code: "INTERNAL_SERVER_ERROR",
-        });
       }
+
+      const data = ctx.db.task.delete({
+        where: {
+          id: taskId,
+          createdById: ctx.session.user.id,
+        },
+        select: { id: true },
+      });
+      return data;
     }),
 });

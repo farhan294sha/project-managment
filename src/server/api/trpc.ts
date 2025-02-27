@@ -14,6 +14,7 @@ import { getServerSession, type Session } from "next-auth";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { authOptions } from "~/pages/api/auth/[...nextauth]";
 import { ZodError } from "zod";
+import { PrismaClientInitializationError, PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 
 interface CreateContextOptions {
   session: Session | null;
@@ -80,11 +81,11 @@ export const createTRPCRouter = t.router;
 const timingMiddleware = t.middleware(async ({ next, path }) => {
   const start = Date.now();
 
-    if (t._config.isDev) {
-      // artificial delay in dev
-      const waitMs = Math.floor(Math.random() * 4000) + 100;
-      await new Promise((resolve) => setTimeout(resolve, waitMs));
-    }
+  if (t._config.isDev) {
+    // artificial delay in dev
+    const waitMs = Math.floor(Math.random() * 4000) + 100;
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+  }
 
   const result = await next();
 
@@ -94,26 +95,96 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   return result;
 });
 
-const globalErrorHandler = t.middleware(async ({ next }) => {
+const globalErrorHandler = t.middleware(async ({ next, path }) => {
   try {
     return await next();
   } catch (err) {
+    // Already a TRPC error, just rethrow
     if (err instanceof TRPCError) {
       throw err;
     }
 
+    // Handle Zod validation errors
     if (err instanceof ZodError) {
       throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Invalid input: ' + err.errors.map((e) => e.message).join(', '),
+        code: "BAD_REQUEST",
+        message:
+          "Invalid input: " + err.errors.map((e) => e.message).join(", "),
+        cause: err,
       });
     }
 
-    console.error('Unhandled error in tRPC procedure:', err);
+    // Handle various Prisma errors
+    if (err instanceof PrismaClientKnownRequestError) {
+      // Handle specific Prisma error codes
+      switch (err.code) {
+        case "P2002": // Unique constraint violation
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Resource already exists",
+            cause: err,
+          });
+        case "P2025": // Record not found
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Resource not found",
+            cause: err,
+          });
+        case "P2003": // Foreign key constraint failure
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Related resource not found",
+            cause: err,
+          });
+        case "P2014": // The provided value is invalid for this type
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid value for this type",
+            cause: err,
+          });
+        default:
+          // Log the specific Prisma error for debugging
+          console.error(`Prisma error (${err.code}) in ${path}:`, err);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database operation failed",
+            cause: err,
+          });
+      }
+    }
 
+    // Handle Prisma validation errors (e.g., invalid data types)
+    if (err instanceof PrismaClientValidationError) {
+      console.error(`Prisma validation error in ${path}:`, err);
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Invalid data provided to database",
+        cause: err,
+      });
+    }
+
+    // Handle Prisma initialization errors
+    if (err instanceof PrismaClientInitializationError) {
+      console.error(`Prisma initialization error in ${path}:`, err);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database connection error",
+        cause: err,
+      });
+    }
+
+    // Handle other types of errors with detailed logging
+    console.error(`Unhandled error in tRPC procedure (${path}):`, {
+      error: err,
+      stack: err instanceof Error ? err.stack : undefined,
+      message: err instanceof Error ? err.message : String(err),
+    });
+
+    // Generic error response for unhandled errors
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'An unexpected error occurred.',
+      code: "INTERNAL_SERVER_ERROR",
+      message: "An unexpected error occurred",
+      cause: err instanceof Error ? err : undefined,
     });
   }
 });
@@ -136,7 +207,8 @@ export const protectedProcedure = t.procedure
         session: { ...ctx.session, user: ctx.session.user },
       },
     });
-  }).use(globalErrorHandler);
+  })
+  .use(globalErrorHandler);
 /**
  * Public (unauthenticated) procedure
  *

@@ -14,7 +14,7 @@ export const createTaskSchema = z.object({
 
 export const updateTaskSchema = createTaskSchema
   .partial()
-  .required({ projectId: true, title: true })
+  .required({ title: true })
   .extend({ id: z.string() });
 
 export type UpdateFormTypes = z.infer<typeof updateTaskSchema>;
