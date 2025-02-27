@@ -22,7 +22,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL_DEV")
-//   directUrl = env("DIRECT_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 // Model definitions
@@ -43,6 +43,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   comments      Comment[]
+  files         File[]
   @@map("users")
 }
 
@@ -145,10 +146,12 @@ model Comment {
 
 model File {
   id        String   @id @default(cuid())
-  name      String
   url       String
-  taskId    String
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  type      String
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId    String?
+  task      Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

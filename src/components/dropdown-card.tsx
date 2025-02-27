@@ -7,7 +7,6 @@ import {
 } from "./ui/dropdown-menu";
 import { Edit, MoreHorizontalIcon, Trash } from "lucide-react";
 import { useTaskDeleteAlert, useTaskDialoge } from "~/store/task-dialoge";
-import { DeleteTaskAlertDialoge } from "./task-delete-dialoge";
 
 const DropdowncardMenu = ({ taskId }: { taskId: string }) => {
   const { setData } = useTaskDialoge(taskId, "UPDATE");

@@ -26,6 +26,9 @@ import DueDateForm from "./due-date-form";
 import PriorityForm from "./priority-form";
 import { useActiveProjectState } from "~/store/active-project";
 import { useToast } from "~/hooks/use-toast";
+import FileUploadFeild from "./file-upload";
+import { useState } from "react";
+import { uploadFiles } from "~/utils/fileUpload";
 
 export default function TaskForm({ onSave }: { onSave: () => void }) {
   const taskSection = useTaskSection() as "Todo" | "InProgress" | "Done";
@@ -34,13 +37,14 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
   const { image, name } = session?.user || {};
   const { data: projectId } = useActiveProjectState();
   const { toast } = useToast();
+  const [files, setFiles] = useState<File[]>([]);
   // Create task mutation
   const createTaskMutation = api.task.create.useMutation({
     async onSuccess(data, variables) {
       await utils.project.getTask.invalidate({
         projectId: variables.projectId,
       });
-      toast({title: "Task created succefully"})
+      toast({ title: "Task created succefully" });
       onSave();
     },
     onError(error) {
@@ -50,6 +54,9 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
       });
     },
   });
+
+  // Presigned url
+  const urlMutation = api.file.getSignedUrl.useMutation();
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(createTaskSchema),
@@ -65,9 +72,27 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
 
   async function onSubmit(data: TaskFormValues) {
     if (!projectId?.projectId) return;
+
+    let images:
+      | {
+          imageId: string | null;
+        }[]
+      | undefined;
+    if (files.length > 0) {
+      images = await uploadFiles(files, urlMutation.mutateAsync);
+      if (images.some((image) => image.imageId === null)) {
+        toast({
+          title: "Task creation stopped.",
+          description: "failed to upload one or more file Try again",
+        });
+        return;
+      }
+    }
+
     try {
       await createTaskMutation.mutateAsync({
         ...data,
+        files: images,
         projectId: projectId.projectId,
       });
     } catch (error) {
@@ -110,8 +135,20 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
               )}
             />
 
-            <Button type="submit" disabled={isPending}>
-              {isPending ? <Loader2 className="animate-spin" /> : "Create Task"}
+            <FileUploadFeild onFileSelect={(files) => setFiles(files)} />
+
+            <Button type="submit" disabled={urlMutation.isPending || isPending}>
+              {urlMutation.isPending ? (
+                <>
+                  <Loader2 className="animate-spin" /> Uploading files
+                </>
+              ) : isPending ? (
+                <>
+                  <Loader2 className="animate-spin" /> Creating task
+                </>
+              ) : (
+                "Create Task"
+              )}
             </Button>
           </div>
 
@@ -155,23 +192,6 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
                   <p className="text-red-600">Required</p>
                 )}
               </div>
-              {/* 
-              {isEditMode && (
-                <div className="space-y-2 border-t pt-4">
-                  <div className="flex flex-col gap-2 text-sm">
-                    <span>Created</span>
-                    <span className="text-xs text-muted-foreground">
-                      {existingTask.createdAt ? new Date(existingTask.createdAt).toLocaleString() : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-2 text-sm">
-                    <span>Updated</span>
-                    <span className="text-xs text-muted-foreground">
-                      {existingTask.updatedAt ? new Date(existingTask.updatedAt).toLocaleString() : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              )} */}
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ export const createTaskSchema = z.object({
   memberEmails: z.array(z.string().email()).optional(),
   taskStatus: z.enum(["Todo", "InProgress", "Done"]),
   tags: z.array(z.string()).optional(),
+  files: z.array(z.object({imageId: z.string().nullable()})).optional()
 });
 
 export const updateTaskSchema = createTaskSchema

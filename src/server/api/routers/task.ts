@@ -23,6 +23,7 @@ export const taskRouter = createTRPCRouter({
         memberEmails,
         taskStatus,
         tags,
+        files,
       } = input;
 
       const project = await ctx.db.project.findUnique({
@@ -54,6 +55,12 @@ export const taskRouter = createTRPCRouter({
           });
         }
       }
+
+      const filteredImageId =
+        files &&
+        (files.filter((file) => file.imageId !== null) as {
+          imageId: string;
+        }[]);
       try {
         const task = await ctx.db.task.create({
           data: {
@@ -72,6 +79,11 @@ export const taskRouter = createTRPCRouter({
                 where: { name: tagName, projectId: projectId },
                 create: { name: tagName, projectId: projectId },
               })),
+            },
+            files: {
+              connect:
+                filteredImageId &&
+                filteredImageId.map((file) => ({ id: file.imageId })),
             },
           },
           include: {
