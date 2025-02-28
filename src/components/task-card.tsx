@@ -1,5 +1,4 @@
 "use client";
-
 import { useDraggable } from "@dnd-kit/core";
 import { Card } from "~/components/ui/card";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -19,7 +18,7 @@ export type Task = {
   priority: TaskPriority;
   imageUrls: string[];
   status: TaskStatus;
-  assignedTo: { image: string | null }[];
+  assignedTo: { image: string | null; name: string | null }[];
   _count: {
     comments: number;
     files: number;

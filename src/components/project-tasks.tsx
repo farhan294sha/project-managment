@@ -3,10 +3,14 @@ import { TaskSection } from "./task-section";
 import { useProject } from "~/hooks/use-project";
 import { useDragAndDrop } from "~/hooks/use-dragDrop";
 import ProjectTasksSkeleton from "./loading-skeleton/project-task-section";
+import { useActiveProjectState } from "~/store/active-project";
+import { useIsProjectTaskFecting } from "~/store/filters";
 
 const ProjectTasks = () => {
-  const { tasks, setTasks, isLoading } = useProject();
+  const { tasks, setTasks } = useProject();
+  const { data } = useActiveProjectState();
   const { handleDragEnd } = useDragAndDrop(tasks, setTasks);
+  const { data: isLoading } = useIsProjectTaskFecting(data?.projectId ?? "");
 
   const sensors = useSensors(
     useSensor(MouseSensor, {

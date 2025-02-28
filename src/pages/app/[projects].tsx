@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import { type NextPageWithLayout } from "../_app";
 import AppPageLayout from ".";
 import ProjectHeader from "~/components/project-header";
@@ -7,10 +7,23 @@ import { api } from "~/utils/api";
 import { Button } from "~/components/ui/button";
 import ProjectCreateInput from "~/components/project-create";
 import { Loader2 } from "lucide-react";
+import { useActiveProjectState } from "~/store/active-project";
+import { TaskFilterProvider } from "~/context/task-filter-provider";
+import { useIsProjectTaskFecting } from "~/store/filters";
 
 const Projects: NextPageWithLayout = () => {
   const [showInput, setShowInput] = useState(false);
   const projects = api.project.getAll.useQuery();
+  const { data } = useActiveProjectState();
+  const projectTask = api.project.getTask.useQuery(
+    { projectId: data?.projectId || "" },
+    { enabled: !!data?.projectId }
+  );
+  const { setData: isFeching } = useIsProjectTaskFecting(data?.projectId ?? "");
+  useEffect(() => {
+    isFeching(projectTask.isLoading);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectTask.isLoading]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -61,11 +74,12 @@ const Projects: NextPageWithLayout = () => {
     );
   }
   return (
-    <div className="overflow-auto">
-
+    <TaskFilterProvider initialTasks={projectTask.data}>
+      <div className="overflow-auto">
         <ProjectHeader />
-      <ProjectTasks />
-    </div>
+        <ProjectTasks />
+      </div>
+    </TaskFilterProvider>
   );
 };
 export default Projects;

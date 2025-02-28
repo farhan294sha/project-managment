@@ -1,9 +1,10 @@
-import { Calendar, ChevronDown, Filter, Link2, SquarePen } from "lucide-react";
+import { Link2, SquarePen } from "lucide-react";
 import { Button } from "./ui/button";
 import { api } from "~/utils/api";
 import InviteMember from "./member-invite";
 import ProjectHeaderSkeleton from "./loading-skeleton/project-headers";
 import { useActiveProjectState } from "~/store/active-project";
+import TaskFilters from "./filters";
 
 const ProjectHeader = () => {
   const { data } = useActiveProjectState();
@@ -41,7 +42,7 @@ const ProjectHeader = () => {
 
   return (
     <div className="flex justify-between py-6 px-6 bg-gradient-to-t from-transparent from-5%% to-white to-40% sticky top-0 z-50">
-      <div >
+      <div>
         <div className="flex items-center gap-4">
           <div className="scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl">
             {project.name}
@@ -56,17 +57,7 @@ const ProjectHeader = () => {
           </div>
         </div>
         <div className="flex items-stretch gap-4 pt-8 text-muted-foreground">
-          <Button variant="outline">
-            <Filter className="h-4 w-4" />
-            <p>Filter</p>
-
-            <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
-          <Button variant="outline">
-            <Calendar className="h-4 w-4" />
-            <p>Today</p>
-            <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
+          <TaskFilters />
         </div>
       </div>
       <div>

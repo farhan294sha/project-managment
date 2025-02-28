@@ -1,14 +1,9 @@
 import { useState, useEffect } from "react";
 import { Task } from "~/components/task-card";
-import { useActiveProjectState } from "~/store/active-project";
-import { api } from "~/utils/api";
+import { useTaskFilterContext } from "~/context/task-filter-provider";
 
 export function useProject() {
-  const { data } = useActiveProjectState();
-  const projectTask = api.project.getTask.useQuery(
-    { projectId: data?.projectId || "" },
-    { enabled: !!data?.projectId }
-  );
+  const { filteredTasks } = useTaskFilterContext();
 
   const [tasks, setTasks] = useState<{
     todo: Task[];
@@ -20,17 +15,25 @@ export function useProject() {
     done: [],
   });
 
+  console.log("Filtered task", filteredTasks);
+
   useEffect(() => {
-    if (projectTask.isSuccess) {
+    if (filteredTasks) {
       setTasks(() => {
         return {
-          todo: projectTask.data.todo,
-          onProgress: projectTask.data.onProgress,
-          done: projectTask.data.done,
+          todo: filteredTasks
+            ? filteredTasks.filter((task) => task.status === "Todo")
+            : [],
+          onProgress: filteredTasks
+            ? filteredTasks.filter((task) => task.status === "InProgress")
+            : [],
+          done: filteredTasks
+            ? filteredTasks.filter((task) => task.status === "Done")
+            : [],
         };
       });
     }
-  }, [projectTask.data, projectTask.isSuccess]);
+  }, [filteredTasks]);
 
-  return { tasks, setTasks, isLoading: projectTask.isLoading };
+  return { tasks, setTasks,};
 }
