@@ -41,7 +41,7 @@ export default function TaskForm({ onSave }: { onSave: () => void }) {
   // Create task mutation
   const createTaskMutation = api.task.create.useMutation({
     async onSuccess(data, variables) {
-      await utils.project.getTask.invalidate({
+      await utils.task.getTask.invalidate({
         projectId: variables.projectId,
       });
       toast({ title: "Task created succefully" });

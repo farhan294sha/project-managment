@@ -26,7 +26,7 @@ const DisplayTask = ({ taskId }: { taskId: string }) => {
     { taskId: taskId! },
     {
       enabled: !!taskId,
-    }
+    },
   );
 
   if (isLoading) {
@@ -58,11 +58,13 @@ const DisplayTask = ({ taskId }: { taskId: string }) => {
                 <AccordionTrigger className="text-sm font-medium">
                   <div className="flex gap-2">
                     <div>Comments</div>
-                    <span className="text-muted-foreground">2</span>
+                    <span className="text-muted-foreground">
+                      {task._count.comments}
+                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <TaskComments />
+                  <TaskComments taskId={taskId} />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

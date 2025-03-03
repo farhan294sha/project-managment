@@ -19,7 +19,7 @@ export const useDragAndDrop = (
 
   const updateTaskMutation = api.task.updateTaskStatus.useMutation({
     onSuccess(data) {
-      qureyClient.project.getTask.invalidate({
+      qureyClient.task.getTask.invalidate({
         projectId: data.projectId ?? "",
       });
     },

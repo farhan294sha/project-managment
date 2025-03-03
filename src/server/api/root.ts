@@ -4,6 +4,7 @@ import { db } from "~/server/db";
 import { projectRouter } from "./routers/project";
 import { taskRouter } from "./routers/task";
 import { fileUploadRouter } from "./routers/files";
+import { commentsRouter } from "./routers/comments";
 
 /**
  * This is the primary router for your server.
@@ -14,7 +15,8 @@ export const appRouter = createTRPCRouter({
   post: postRouter,
   project: projectRouter,
   task: taskRouter,
-  file: fileUploadRouter
+  file: fileUploadRouter,
+  comments: commentsRouter
 });
 
 // export type definition of API

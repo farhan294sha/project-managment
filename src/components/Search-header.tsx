@@ -6,7 +6,7 @@ import UserInfo from "./header-user-info";
 import { signOut } from "next-auth/react";
 import { useSearchQuery } from "~/store/search-store";
 export default function SearchHeader() {
-  const { data, setData } = useSearchQuery();
+  const { setData } = useSearchQuery();
   return (
     <div className="flex w-full items-center justify-between px-2 py-2">
       <div className="relative max-w-md flex-1">

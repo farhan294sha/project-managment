@@ -21,7 +21,7 @@ export function DeleteTaskAlertDialoge({ taskId }: { taskId: string }) {
   const [isDeleteButtonClicked, setIsDeleteButtonClicked] = useState(false)
   const deleteMutation = api.task.delete.useMutation({
     async onSuccess() {
-      await qureyClient.project.getTask.invalidate({
+      await qureyClient.task.getTask.invalidate({
         projectId: projectId?.projectId ?? "",
       });
 

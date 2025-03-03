@@ -15,8 +15,6 @@ export function useProject() {
     done: [],
   });
 
-  console.log("Filtered task", filteredTasks);
-
   useEffect(() => {
     if (filteredTasks) {
       setTasks(() => {
@@ -35,5 +33,5 @@ export function useProject() {
     }
   }, [filteredTasks]);
 
-  return { tasks, setTasks,};
+  return { tasks, setTasks };
 }

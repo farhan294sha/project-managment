@@ -15,14 +15,14 @@ const Projects: NextPageWithLayout = () => {
   const [showInput, setShowInput] = useState(false);
   const projects = api.project.getAll.useQuery();
   const { data } = useActiveProjectState();
-  const projectTask = api.project.getTask.useQuery(
+  const projectTask = api.task.getTask.useQuery(
     { projectId: data?.projectId || "" },
     { enabled: !!data?.projectId }
   );
   const { setData: isFeching } = useIsProjectTaskFecting(data?.projectId ?? "");
   useEffect(() => {
     isFeching(projectTask.isLoading);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectTask.isLoading]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);

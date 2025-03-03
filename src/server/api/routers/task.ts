@@ -181,6 +181,11 @@ export const taskRouter = createTRPCRouter({
           createdAt: true,
           updatedAt: true,
           priority: true,
+          _count: {
+            select: {
+              comments: true,
+            },
+          },
           status: true,
           createdBy: {
             select: {
@@ -343,5 +348,55 @@ export const taskRouter = createTRPCRouter({
         select: { id: true },
       });
       return data;
+    }),
+  getTask: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { projectId } = input;
+
+      const task = await ctx.db.task.findMany({
+        where: {
+          projectId: projectId,
+        },
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          priority: true,
+          imageUrls: true,
+          assignedTo: {
+            select: {
+              name: true,
+              image: true,
+            },
+          },
+          files: {
+            take: 2,
+            select: {
+              url: true,
+            },
+          },
+          _count: {
+            select: {
+              files: true,
+              comments: true,
+            },
+          },
+        },
+      });
+
+      if (!task) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project id is invlaid or not found",
+        });
+      }
+
+      return task;
     }),
 });
