@@ -20,47 +20,50 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL_DEV")
+  provider = "postgresql"
+  url      = env("DATABASE_URL_DEV")
   // directUrl = env("DIRECT_URL")
 }
 
 // Model definitions
 model User {
-  id            String   @id @default(cuid())
-  name          String?
-  email         String  @unique
-  emailVerified DateTime? @map("email_verified")
-  image         String?
-  password      String?  // Store hashed passwords only
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  profile       Profile?
-  tasks         Task[]   @relation("AssignedTasks")
-  createdTasks  Task[]   @relation("CreatedTasks")
-  projects      Project[] @relation("ProjectMembers")
-  createdProjects Project[] @relation("CreatedProjects")
-  accounts      Account[]
-  sessions      Session[]
-  comments      Comment[]
-  files         File[]
+  id              String     @id @default(cuid())
+  name            String?
+  email           String     @unique
+  emailVerified   DateTime?  @map("email_verified")
+  image           String?
+  password        String? // Store hashed passwords only
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  profile         Profile?
+  tasks           Task[]     @relation("AssignedTasks")
+  createdTasks    Task[]     @relation("CreatedTasks")
+  projects        Project[]  @relation("ProjectMembers")
+  createdProjects Project[]  @relation("CreatedProjects")
+  accounts        Account[]
+  sessions        Session[]
+  comments        Comment[]
+  files           File[]
+  reactions       Reaction[]
+
   @@map("users")
 }
 
 model Account {
-  id                String   @id @default(cuid())
-  userId            String   @map("user_id")
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
   type              String
   provider          String
-  providerAccountId String   @map("provider_account_id")
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String? @db.Text
   session_state     String?
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
@@ -71,6 +74,7 @@ model Session {
   userId       String   @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("sessions")
 }
 
@@ -78,80 +82,84 @@ model VerificationToken {
   identifier String
   token      String
   expires    DateTime
+
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
 
 model Profile {
-  id         String   @id @default(cuid())
-  bio        String?
-  avatarUrl  String?
-  userId     String   @unique
-  user       User     @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Task {
-  id           String   @id @default(cuid())
-  title        String
-  description  String?
-  status       TaskStatus @default(Todo)
-  priority     TaskPriority @default(Low)
-  deadline     DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdById  String
-  createdBy    User     @relation("CreatedTasks", fields: [createdById], references: [id])
-  assignedTo   User[]    @relation("AssignedTasks")
-  projectId    String?
-  project      Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  tags         Tag[]    @relation("TaskTags")
-  comments     Comment[]
- files        File[]
-imageUrls    String[]
-}
-
-model Project {
-  id           String   @id @default(cuid())
-  name         String
-  description  String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdById  String
-  createdBy    User     @relation("CreatedProjects", fields: [createdById], references: [id])
-  members      User[] @relation("ProjectMembers")
-  tasks        Task[]
-  tags         Tag[]
-
-}
-
-model Tag {
-  id    String   @id @default(cuid())
-  name  String   @unique
-  tasks Task[]   @relation("TaskTags")
-  projectId String  
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-}
-model Comment {
   id        String   @id @default(cuid())
-  content   String
-  taskId    String
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  userId    String
+  bio       String?
+  avatarUrl String?
+  userId    String   @unique
   user      User     @relation(fields: [userId], references: [id])
-  reactions Reaction[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus   @default(Todo)
+  priority    TaskPriority @default(Low)
+  deadline    DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdById String
+  createdBy   User         @relation("CreatedTasks", fields: [createdById], references: [id])
+  assignedTo  User[]       @relation("AssignedTasks")
+  projectId   String?
+  project     Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tags        Tag[]        @relation("TaskTags")
+  comments    Comment[]
+  files       File[]
+  imageUrls   String[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  createdBy   User     @relation("CreatedProjects", fields: [createdById], references: [id])
+  members     User[]   @relation("ProjectMembers")
+  tasks       Task[]
+  tags        Tag[]
+}
+
+model Tag {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  tasks     Task[]  @relation("TaskTags")
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String     @id @default(cuid())
+  content   String
+  taskId    String
+  task      Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  reactions Reaction[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
 model Reaction {
-  id        String   @id @default(cuid())
-  emoji     String
-  count     Int
-  reacted   Boolean
+  userId    String
   commentId String
-  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  emoji     String 
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  comment Comment @relation(fields: [commentId], references: [id])
+
+  @@id([userId, commentId, emoji])
 }
 
 model File {
@@ -159,9 +167,9 @@ model File {
   url       String
   type      String
   userId    String
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   taskId    String?
-  task      Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
