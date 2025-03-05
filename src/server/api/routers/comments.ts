@@ -35,11 +35,9 @@ export const commentsRouter = createTRPCRouter({
       }
 
       const formattedComments = comments.map((comment) => {
-
         const emojiCounts: Record<string, number> = {};
         const reactedByUser: Record<string, boolean> = {};
 
-  
         for (const reaction of comment.reactions) {
           const emoji = reaction.emoji;
           emojiCounts[emoji] = (emojiCounts[emoji] || 0) + 1;
@@ -51,7 +49,7 @@ export const commentsRouter = createTRPCRouter({
         // 3. Format the reactions array based on emoji counts
         const formattedReactions = Object.keys(emojiCounts).map((emoji) => ({
           emoji: emoji,
-          count: emojiCounts[emoji],
+          count: emojiCounts[emoji] || 0,
           reacted: !!reactedByUser[emoji], // Check if the current user reacted with this emoji
         }));
 

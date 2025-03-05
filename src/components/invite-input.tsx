@@ -20,7 +20,8 @@ interface TagInputProps {
   label?: string;
   placeholder?: string;
   error?: string;
-  createDiscription?: string
+  createDiscription?: string;
+  addTagDisc?: string;
 }
 
 const tagStyles = {
@@ -36,18 +37,19 @@ const tagStyles = {
 
 export default function InputTags({
   defaultTags,
-  onChange,// Set KokonutUI as default
+  onChange, // Set KokonutUI as default
   suggestions = [],
   maxTags = 10,
   label = "Tags",
   placeholder = "Add tags...",
   error,
-  createDiscription = "Choose a tag or create one"
+  createDiscription = "Choose a tag or create one",
+  addTagDisc = "Create",
 }: TagInputProps) {
   const { tags, addTag, removeTag, removeLastTag } = useTags({
     onChange,
     maxTags,
-    defaultTags
+    defaultTags,
   });
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -203,22 +205,25 @@ export default function InputTags({
                     const colorKeys = Object.keys(tagStyles.colors) as Array<
                       keyof typeof tagStyles.colors
                     >;
-                    if (colorKeys.length > 0) { // Check if colorKeys has elements
-                        const randomColor =
-                          tagStyles.colors[
-                            colorKeys[Math.floor(Math.random() * colorKeys.length)] as ("blue" | "purple" | "green")
-                          ];
-                        addTag({
-                          id: input,
-                          label: input,
-                          color: randomColor,
-                        });
-                      } else {
-                        addTag({
-                          id: input,
-                          label: input,
-                        }); // Add tag without a color if colorStyles are empty.
-                      }
+                    if (colorKeys.length > 0) {
+                      // Check if colorKeys has elements
+                      const randomColor =
+                        tagStyles.colors[
+                          colorKeys[
+                            Math.floor(Math.random() * colorKeys.length)
+                          ] as "blue" | "purple" | "green"
+                        ];
+                      addTag({
+                        id: input,
+                        label: input,
+                        color: randomColor,
+                      });
+                    } else {
+                      addTag({
+                        id: input,
+                        label: input,
+                      }); // Add tag without a color if colorStyles are empty.
+                    }
                     setInput("");
                     setIsOpen(false);
                   }}
@@ -230,7 +235,7 @@ export default function InputTags({
                   )}
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Create &quot;{input}&quot;
+                  {addTagDisc} &quot;{input}&quot;
                 </button>
               )}
             </div>

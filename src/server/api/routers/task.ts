@@ -181,6 +181,11 @@ export const taskRouter = createTRPCRouter({
           createdAt: true,
           updatedAt: true,
           priority: true,
+          files: {
+            select: {
+              url: true,
+            },
+          },
           _count: {
             select: {
               comments: true,
@@ -368,7 +373,6 @@ export const taskRouter = createTRPCRouter({
           title: true,
           status: true,
           priority: true,
-          imageUrls: true,
           assignedTo: {
             select: {
               name: true,

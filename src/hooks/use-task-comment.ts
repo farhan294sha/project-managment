@@ -8,7 +8,7 @@ export function useTaskComments(taskId: string) {
   // Query to fetch comments for a task
   const commentsQuery = api.comments.getByTaskId.useQuery({
     taskId,
-  });
+  }, {retry: 0});
 
   // Mutation to add a new comment
   const addCommentMutation = api.comments.add.useMutation({

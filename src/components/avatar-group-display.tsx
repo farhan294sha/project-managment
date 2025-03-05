@@ -8,7 +8,7 @@ const AvatarGroupDisplay = ({ members }: { members: Member[] }) => {
     <div>
       {members.length > 0 && (
         <AvatarGroup>
-          {members.length >= 3 ? (
+          {members.length > 4 ? (
             <div className="flex items-center -space-x-2">
               {members.slice(0, 4).map((assignee, index) => (
                 <Avatar key={index} className="h-7 w-7">

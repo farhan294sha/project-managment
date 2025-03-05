@@ -27,7 +27,15 @@ export default function TaskComments({ taskId }: { taskId: string }) {
         )}
       >
         <div className="h-[350px] overflow-y-auto p-5 space-y-5">
-          {comments && comments.length > 0 ? (
+          {isLoading && (
+            <div className="flex justify-center">
+              <span className="text-sm text-zinc-500">Loading comments...</span>
+            </div>
+          )}
+
+          {!isLoading &&
+            comments &&
+            comments.length > 0 &&
             comments.map((comment) => (
               <>
                 <CommentItem
@@ -38,16 +46,11 @@ export default function TaskComments({ taskId }: { taskId: string }) {
                 />
                 <Separator />
               </>
-            ))
-          ) : (
+            ))}
+
+          {!isLoading && (!comments || comments.length === 0) && (
             <div className="flex flex-col items-center justify-center h-full text-zinc-500 dark:text-zinc-400">
               <p>No comments yet</p>
-            </div>
-          )}
-
-          {isLoading && (
-            <div className="flex justify-center">
-              <span className="text-sm text-zinc-500">Loading comments...</span>
             </div>
           )}
         </div>

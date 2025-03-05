@@ -78,6 +78,7 @@ const InviteMember = ({
                 handleEmailsChange(emails);
               }}
               error={tagError}
+              addTagDisc="Add"
             />
             <div
               className={cn(

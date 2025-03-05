@@ -16,7 +16,7 @@ export type Task = {
   id: string;
   title: string;
   priority: TaskPriority;
-  imageUrls: string[];
+  files: { url: string }[];
   status: TaskStatus;
   assignedTo: { image: string | null; name: string | null }[];
   _count: {
@@ -31,7 +31,7 @@ export function TaskCard({
   id,
   title,
   priority,
-  imageUrls,
+  files,
   assignedTo,
   _count,
 }: TaskCardProps) {
@@ -100,13 +100,13 @@ export function TaskCard({
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          {imageUrls.map((url, index) => (
+          {files.map((url, index) => (
             <div
               key={index}
               className="relative aspect-[4/3] overflow-hidden rounded-lg"
             >
               <Image
-                src={url || "/placeholder.svg"}
+                src={url.url || "/placeholder.svg"}
                 alt={`Task preview ${index + 1}`}
                 fill
                 className="object-cover"

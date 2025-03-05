@@ -14,6 +14,7 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import TaskDetailSkeleton from "../loading-skeleton/task-display";
+import Image from "next/image";
 
 const DisplayTask = ({ taskId }: { taskId: string }) => {
   const { toast } = useToast();
@@ -26,7 +27,7 @@ const DisplayTask = ({ taskId }: { taskId: string }) => {
     { taskId: taskId! },
     {
       enabled: !!taskId,
-    },
+    }
   );
 
   if (isLoading) {
@@ -69,6 +70,27 @@ const DisplayTask = ({ taskId }: { taskId: string }) => {
               </AccordionItem>
             </Accordion>
           </div>
+          {task.files && task.files.length > 0 && (
+            <div className="mt-4">
+              <div className="text-sm font-medium">Images</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 relative">
+                {task.files.map((fileUrl, index) => (
+                  <a
+                    key={index}
+                    href={fileUrl.url}
+                    className="relative aspect-[4/3] overflow-hidden rounded-lg"
+                  >
+                    <Image
+                      src={fileUrl.url}
+                      fill
+                      alt={`Task Image ${index + 1}`}
+                      className="object-cover"
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="col-span-2 overflow-auto h-full">

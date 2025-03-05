@@ -68,6 +68,9 @@ const UpdateTask = ({
   const updateMutation = api.task.update.useMutation({
     async onSuccess(variables) {
       await utils.task.getbyId.invalidate({ taskId: variables.id });
+      await utils.task.getTask.invalidate({
+        projectId: projectId?.projectId ?? "",
+      });
       toast({ title: "Task is updated" });
       onSave();
     },
@@ -75,7 +78,6 @@ const UpdateTask = ({
       toast({ title: "Something went worng", description: error.message });
     },
   });
-
 
   const form = useForm<UpdateFormTypes>({
     resolver: zodResolver(updateTaskSchema),
@@ -162,7 +164,7 @@ const UpdateTask = ({
             />
 
             <Button type="submit" disabled={isPending}>
-              {isPending ? <Loader2 className="animate-spin" /> : "Create Task"}
+              {isPending ? <Loader2 className="animate-spin" /> : "Update task"}
             </Button>
           </div>
 
@@ -184,7 +186,9 @@ const UpdateTask = ({
               <div className="space-y-2">
                 <AssigneeDisplay
                   onChange={(emails) => form.setValue("memberEmails", emails)}
-                  assignedTo={taskDetails?.assignedTo.map((assignee)=> assignee)}
+                  assignedTo={taskDetails?.assignedTo.map(
+                    (assignee) => assignee
+                  )}
                 />
               </div>
 
@@ -213,23 +217,6 @@ const UpdateTask = ({
                   <p className="text-red-600">Required</p>
                 )}
               </div>
-              {/* 
-              {isEditMode && (
-                <div className="space-y-2 border-t pt-4">
-                  <div className="flex flex-col gap-2 text-sm">
-                    <span>Created</span>
-                    <span className="text-xs text-muted-foreground">
-                      {existingTask.createdAt ? new Date(existingTask.createdAt).toLocaleString() : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-2 text-sm">
-                    <span>Updated</span>
-                    <span className="text-xs text-muted-foreground">
-                      {existingTask.updatedAt ? new Date(existingTask.updatedAt).toLocaleString() : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              )} */}
             </div>
           </div>
         </div>

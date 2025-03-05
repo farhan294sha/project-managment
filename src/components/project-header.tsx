@@ -1,10 +1,10 @@
-import { Link2, SquarePen } from "lucide-react";
 import { Button } from "./ui/button";
 import { api } from "~/utils/api";
 import InviteMember from "./member-invite";
 import ProjectHeaderSkeleton from "./loading-skeleton/project-headers";
 import { useActiveProjectState } from "~/store/active-project";
 import TaskFilters from "./filters";
+import ProjectTitle from "./project-header-title";
 
 const ProjectHeader = () => {
   const { data } = useActiveProjectState();
@@ -44,17 +44,7 @@ const ProjectHeader = () => {
     <div className="flex justify-between py-6 px-6 bg-gradient-to-t from-transparent from-5%% to-white to-40% sticky top-0 z-50">
       <div>
         <div className="flex items-center gap-4">
-          <div className="scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl">
-            {project.name}
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="purpleIcon" size="purpleIcon">
-              <SquarePen className="h-4 w-4 text-primary/90" />
-            </Button>
-            <Button variant="purpleIcon" size="purpleIcon">
-              <Link2 className="h-4 w-4 text-primary/90" />
-            </Button>
-          </div>
+          <ProjectTitle projectName={project.name} />
         </div>
         <div className="flex items-stretch gap-4 pt-8 text-muted-foreground">
           <TaskFilters />
