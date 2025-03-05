@@ -23,7 +23,7 @@ const ProjectTasks = () => {
   return (
     <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
       <div className="flex-1  p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-max">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-max">
           <TaskSection id="todo" variant="todo" tasks={tasks.todo} />
           <TaskSection
             id="onProgress"

@@ -20,6 +20,7 @@ const TaskFilters = () => {
     { projectId: data?.projectId || "" },
     { enabled: !!data?.projectId }
   );
+
   const {
     statusFilter,
     toggleStatusFilter,
@@ -28,6 +29,7 @@ const TaskFilters = () => {
     assigneeFilter,
     toggleAssigneeFilter,
   } = useTaskFilterContext();
+
 
   return (
     <>

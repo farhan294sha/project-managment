@@ -5,11 +5,11 @@ import { useTaskFilter } from "~/hooks/use-task-filter";
 interface TaskFilterContextType {
   tasks: Task[];
   filteredTasks: Task[] | null | undefined;
-  searchQuery: string;
+  searchQuery: string | null | undefined;
   statusFilter: TaskStatus[];
   assigneeFilter: string[];
   priorityFilter: TaskPriority[];
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  setSearchQuery: (search: string | null) => void;
   getTaskCountByStatus: (status: TaskStatus) => number | undefined;
   toggleStatusFilter: (status: TaskStatus) => void;
   toggleAssigneeFilter: (assignee: string) => void;

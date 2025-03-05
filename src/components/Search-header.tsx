@@ -4,9 +4,20 @@ import { Button } from "~/components/ui/button";
 import { Bell, Calendar, MessageCircle } from "lucide-react";
 import UserInfo from "./header-user-info";
 import { signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useDebounce } from "~/hooks/useDebounce";
 import { useSearchQuery } from "~/store/search-store";
 export default function SearchHeader() {
   const { setData } = useSearchQuery();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  useEffect(() => {
+    setData(debouncedSearchTerm);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]);
+
   return (
     <div className="flex w-full items-center justify-between px-2 py-2">
       <div className="relative max-w-md flex-1">
@@ -17,7 +28,7 @@ export default function SearchHeader() {
           type="search"
           placeholder="Search for anything..."
           className="w-full bg-secondary pl-10"
-          onChange={(e) => setData(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 

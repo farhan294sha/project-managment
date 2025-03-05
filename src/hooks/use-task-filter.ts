@@ -2,11 +2,12 @@ import { TaskPriority, TaskStatus } from "@prisma/client";
 import { useState, useEffect } from "react";
 import { Task } from "~/components/task-card";
 import { useFilterdTasks } from "~/store/filters";
+import { useSearchQuery } from "~/store/search-store";
 
 export function useTaskFilter(initialTasks: Task[] | undefined) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks || []);
   const { data: filteredTasks, setData: setFilteredTasks } = useFilterdTasks();
-  const [searchQuery, setSearchQuery] = useState("");
+  const { data: searchQuery, setData: setSearchQuery } = useSearchQuery();
   const [statusFilter, setStatusFilter] = useState<TaskStatus[]>([
     "Todo",
     "InProgress",
@@ -20,10 +21,10 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
   ]);
   useEffect(() => {
     // handle initialTasks being undefined.
-    if(initialTasks){
-        setTasks(initialTasks);
+    if (initialTasks) {
+      setTasks(initialTasks);
     }
-},[initialTasks]);
+  }, [initialTasks]);
 
   // Apply filters when any filter changes
   useEffect(() => {
@@ -31,9 +32,9 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     let result = tasks;
 
     // Filter by search query
-    if (false) {
+    if (searchQuery) {
       result = result.filter((task) =>
-        task.title.toLowerCase().includes(searchQuery.toLowerCase()),
+        task.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -46,8 +47,8 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     if (assigneeFilter.length > 0) {
       result = result.filter((task) =>
         task.assignedTo.some((assignee) =>
-          assigneeFilter.includes(assignee.name ?? ""),
-        ),
+          assigneeFilter.includes(assignee.name ?? "")
+        )
       );
     }
 
@@ -69,7 +70,7 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     setStatusFilter((prev) =>
       prev.includes(status)
         ? prev.filter((s) => s !== status)
-        : [...prev, status],
+        : [...prev, status]
     );
   };
 
@@ -78,7 +79,7 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     setAssigneeFilter((prev) =>
       prev.includes(assignee)
         ? prev.filter((a) => a !== assignee)
-        : [...prev, assignee],
+        : [...prev, assignee]
     );
   };
 
@@ -87,7 +88,7 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     setPriorityFilter((prev) =>
       prev.includes(priority)
         ? prev.filter((p) => p !== priority)
-        : [...prev, priority],
+        : [...prev, priority]
     );
   };
 

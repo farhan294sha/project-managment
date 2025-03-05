@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "./ui/button";
-import { Link2, SquarePen } from "lucide-react";
+import { SquarePen } from "lucide-react";
 import { useActiveProjectState } from "~/store/active-project";
 import { Input } from "./ui/input";
 import { api } from "~/utils/api";
@@ -75,9 +75,6 @@ const ProjectTitle = ({ projectName }: { projectName: string }) => {
               onClick={handleEditClick}
             >
               <SquarePen className="h-4 w-4 text-primary/90" />
-            </Button>
-            <Button variant="purpleIcon" size="purpleIcon">
-              <Link2 className="h-4 w-4 text-primary/90" />
             </Button>
           </div>
         </div>

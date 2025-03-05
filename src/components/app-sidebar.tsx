@@ -1,7 +1,3 @@
-"use client";
-
-import * as React from "react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -52,19 +48,6 @@ export function AppSidebar() {
         <Separator className="mx-4 max-w-[220px]" />
         {/* project section */}
         <ProjectSidebarSection />
-
-        <div className="mt-auto p-4">
-          <div className="rounded-lg bg-slate-50 p-4">
-            <h3 className="mb-2 font-semibold">Thoughts Time</h3>
-            <p className="text-sm text-muted-foreground">
-              We don&apos;t have any notice for you, till then you can share
-              your thoughts with your peers.
-            </p>
-            <button className="mt-4 w-full rounded-lg bg-white px-4 py-2 text-sm shadow-sm">
-              Write a message
-            </button>
-          </div>
-        </div>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
