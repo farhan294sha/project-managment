@@ -403,4 +403,22 @@ export const taskRouter = createTRPCRouter({
 
       return task;
     }),
+  getPendingTask: protectedProcedure.query(async ({ ctx }) => {
+    const project = await ctx.db.project.findMany({
+      where: {
+        members: {
+          some: {
+            id: ctx.session.user.id,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (project.length < 0) {
+      throw new TRPCError({ message: "Project not found", code: "NOT_FOUND" });
+    }    
+  }),
 });

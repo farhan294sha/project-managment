@@ -20,6 +20,7 @@ const Projects: NextPageWithLayout = () => {
     { enabled: !!data?.projectId }
   );
   const { setData: isFeching } = useIsProjectTaskFecting(data?.projectId ?? "");
+  
   useEffect(() => {
     isFeching(projectTask.isLoading);
     // eslint-disable-next-line react-hooks/exhaustive-deps

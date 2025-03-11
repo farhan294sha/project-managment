@@ -30,7 +30,6 @@ const TaskFilters = () => {
     toggleAssigneeFilter,
   } = useTaskFilterContext();
 
-
   return (
     <>
       <DropdownMenu>

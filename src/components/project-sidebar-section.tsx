@@ -30,22 +30,10 @@ const projectColours = [
 ];
 const ProjectSidebarSection = () => {
   const projects = api.project.getAll.useQuery(undefined, { retry: 1 });
-  const router = useRouter();
 
   const [showInput, setShowInput] = useState(false);
 
-  const { data, setData } = useActiveProjectState();
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (projects.isSuccess && projects.data && projects.data.length > 0) {
-      const firstProject = projects.data[0];
-      if (!data?.projectId) {
-        router.push(`/app/${firstProject?.id}`); 
-        setData({ projectId: firstProject?.id });
-      }
-    }
-  }, [projects.isSuccess, projects.data, router, data, setData]);
+  const { data, setData } = useActiveProjectState()
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 

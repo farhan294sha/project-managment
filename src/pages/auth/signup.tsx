@@ -28,7 +28,7 @@ export default function SignUp() {
       });
 
       if (result?.ok) {
-        await router.push("/app/projects");
+        await router.push("/app/dashboard");
         return;
       }
       if (result?.error) {
@@ -91,7 +91,7 @@ export default function SignUp() {
                 disabled={githubLoading}
                 onClick={async () => {
                   setGithubLoading(true);
-                  await signIn("github", { callbackUrl: "/app/projects" });
+                  await signIn("github", { callbackUrl: "/app/dashboard" });
                   setGithubLoading(false);
                 }}
               >

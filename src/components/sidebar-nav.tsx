@@ -7,11 +7,12 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 import TodoSvg from "./todo-svg";
+import Link from "next/link";
 const navigation = [
   {
     title: "Home",
     icon: LayoutGrid,
-    href: "/",
+    href: "/app/dashboard",
   },
   {
     title: "Messages",
@@ -42,15 +43,15 @@ const SidebarNav = () => {
         <SidebarMenu className="mt-2 space-y-2">
           {navigation.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                className="group text-muted-foreground"
-              >
-                <a href={item.href} className="flex gap-4">
+              <Link href="/app/dashboard" className="flex gap-4">
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  className="group text-muted-foreground"
+                >
                   <item.icon className="h-5 w-5" strokeOpacity={1.5} />
                   <span className="font-medium">{item.title}</span>
-                </a>
-              </SidebarMenuButton>
+                </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

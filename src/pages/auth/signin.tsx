@@ -33,7 +33,7 @@ export default function SignIn() {
     if (result?.error) {
       setError(result.error);
     } else {
-      await router.push("/app/projects");
+      await router.push("/app/dashboard");
     }
   };
 
