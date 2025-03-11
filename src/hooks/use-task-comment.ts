@@ -6,9 +6,12 @@ export function useTaskComments(taskId: string) {
   const { data: session } = useSession();
 
   // Query to fetch comments for a task
-  const commentsQuery = api.comments.getByTaskId.useQuery({
-    taskId,
-  }, {retry: 0});
+  const commentsQuery = api.comments.getByTaskId.useQuery(
+    {
+      taskId,
+    },
+    { retry: 0 },
+  );
 
   // Mutation to add a new comment
   const addCommentMutation = api.comments.add.useMutation({
@@ -44,7 +47,7 @@ export function useTaskComments(taskId: string) {
       if (context?.previousComments) {
         queryClient.comments.getByTaskId.setData(
           { taskId },
-          context.previousComments
+          context.previousComments,
         );
       }
     },
@@ -85,7 +88,7 @@ export function useTaskComments(taskId: string) {
 
           // Find if the reaction already exists
           const existingReactionIndex = updatedComment.reactions.findIndex(
-            (r) => r.emoji === emoji
+            (r) => r.emoji === emoji,
           );
 
           if (existingReactionIndex >= 0) {
@@ -110,7 +113,7 @@ export function useTaskComments(taskId: string) {
               } else {
                 // Remove the reaction completely if count would be 0
                 updatedComment.reactions = updatedComment.reactions.filter(
-                  (_, i) => i !== existingReactionIndex
+                  (_, i) => i !== existingReactionIndex,
                 );
               }
             } else {
@@ -144,7 +147,7 @@ export function useTaskComments(taskId: string) {
       if (context?.previousComments) {
         queryClient.comments.getByTaskId.setData(
           { taskId },
-          context.previousComments
+          context.previousComments,
         );
       }
     },

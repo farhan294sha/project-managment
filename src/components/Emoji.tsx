@@ -9,11 +9,14 @@ import { PopoverTrigger } from "@radix-ui/react-popover";
 interface PickEmojiProps {
   className?: string;
   onChange: (emoji: EmojiClickData) => void;
-  type?: "normal" | "reaction"
+  type?: "normal" | "reaction";
 }
 
-
-const PickEmoji = ({ className, onChange, type = "normal" }: PickEmojiProps) => {
+const PickEmoji = ({
+  className,
+  onChange,
+  type = "normal",
+}: PickEmojiProps) => {
   const handleEmojiClick = (emoji: EmojiClickData) => {
     onChange(emoji);
   };

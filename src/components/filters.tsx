@@ -18,7 +18,7 @@ const TaskFilters = () => {
 
   const { data: members, isLoading } = api.project.getMembers.useQuery(
     { projectId: data?.projectId || "" },
-    { enabled: !!data?.projectId }
+    { enabled: !!data?.projectId },
   );
 
   const {

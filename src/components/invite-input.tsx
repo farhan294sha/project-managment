@@ -61,7 +61,7 @@ export default function InputTags({
     .filter(
       (suggestion) =>
         suggestion.label.toLowerCase().includes(input.toLowerCase()) &&
-        !tags.find((tag: { id: string }) => tag.id === suggestion.id)
+        !tags.find((tag: { id: string }) => tag.id === suggestion.id),
     )
     .slice(0, 5);
 
@@ -89,7 +89,7 @@ export default function InputTags({
   }
 
   useClickOutside(containerRef as RefObject<HTMLElement>, () =>
-    setIsOpen(false)
+    setIsOpen(false),
   );
 
   return (
@@ -113,7 +113,7 @@ export default function InputTags({
           "border-zinc-300 dark:border-zinc-700",
           "bg-white dark:bg-zinc-900",
           "focus-within:ring-2 focus-within:ring-indigo-500/30 dark:focus-within:ring-indigo-400/30",
-          "flex items-center flex-row flex-wrap gap-2 sm:gap-1.5 relative"
+          "flex items-center flex-row flex-wrap gap-2 sm:gap-1.5 relative",
         )}
       >
         {tags.map((tag: Tag) => (
@@ -122,7 +122,7 @@ export default function InputTags({
             className={cn(
               tagStyles.base,
               "text-base sm:text-sm py-1 sm:py-0.5",
-              tag.color || tagStyles.colors.blue
+              tag.color || tagStyles.colors.blue,
             )}
           >
             {tag.label}
@@ -131,7 +131,7 @@ export default function InputTags({
               onClick={() => removeTag(tag.id)}
               className={cn(
                 "text-current/60 hover:text-current transition-colors",
-                "p-1 sm:p-0"
+                "p-1 sm:p-0",
               )}
             >
               <X className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
@@ -157,7 +157,7 @@ export default function InputTags({
             "text-base sm:text-sm",
             "text-zinc-900 dark:text-zinc-100",
             "placeholder:text-zinc-500 dark:placeholder:text-zinc-400",
-            "focus:outline-hidden"
+            "focus:outline-hidden",
           )}
         />
 
@@ -169,7 +169,7 @@ export default function InputTags({
               "bg-white dark:bg-zinc-900",
               "border border-zinc-300 dark:border-zinc-700",
               "rounded-lg shadow-lg dark:shadow-zinc-950/50",
-              "overflow-hidden"
+              "overflow-hidden",
             )}
           >
             <div className="px-2 py-1.5 border-b border-zinc-200 dark:border-zinc-800">
@@ -191,7 +191,7 @@ export default function InputTags({
                     tagStyles.base,
                     selectedIndex === index
                       ? tagStyles.colors.blue
-                      : "bg-zinc-50 text-zinc-700 border border-zinc-300 hover:border-zinc-400 dark:bg-zinc-800/50 dark:text-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600"
+                      : "bg-zinc-50 text-zinc-700 border border-zinc-300 hover:border-zinc-400 dark:bg-zinc-800/50 dark:text-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600",
                   )}
                 >
                   {suggestion.label}
@@ -231,7 +231,7 @@ export default function InputTags({
                     tagStyles.base,
                     selectedIndex === filteredSuggestions.length
                       ? tagStyles.colors.blue
-                      : "bg-zinc-50 text-zinc-700 border border-zinc-300 hover:border-zinc-400 dark:bg-zinc-800/50 dark:text-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600"
+                      : "bg-zinc-50 text-zinc-700 border border-zinc-300 hover:border-zinc-400 dark:bg-zinc-800/50 dark:text-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600",
                   )}
                 >
                   <Plus className="w-3.5 h-3.5" />

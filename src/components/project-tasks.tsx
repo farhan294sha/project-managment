@@ -15,7 +15,7 @@ const ProjectTasks = () => {
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: { delay: 100, tolerance: 10 },
-    })
+    }),
   );
   if (isLoading) {
     return <ProjectTasksSkeleton />;

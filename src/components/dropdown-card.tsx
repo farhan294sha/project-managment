@@ -10,8 +10,7 @@ import { useTaskDeleteAlert, useTaskDialoge } from "~/store/task-dialoge";
 
 const DropdowncardMenu = ({ taskId }: { taskId: string }) => {
   const { setData } = useTaskDialoge(taskId, "UPDATE");
-  const { setData: deleteAlert } =
-    useTaskDeleteAlert(taskId);
+  const { setData: deleteAlert } = useTaskDeleteAlert(taskId);
   return (
     <>
       <DropdownMenu>
@@ -40,7 +39,6 @@ const DropdowncardMenu = ({ taskId }: { taskId: string }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      
     </>
   );
 };

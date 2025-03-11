@@ -34,7 +34,7 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     // Filter by search query
     if (searchQuery) {
       result = result.filter((task) =>
-        task.title.toLowerCase().includes(searchQuery.toLowerCase())
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -47,8 +47,8 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     if (assigneeFilter.length > 0) {
       result = result.filter((task) =>
         task.assignedTo.some((assignee) =>
-          assigneeFilter.includes(assignee.name ?? "")
-        )
+          assigneeFilter.includes(assignee.name ?? ""),
+        ),
       );
     }
 
@@ -58,6 +58,7 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     }
 
     setFilteredTasks(result);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tasks, searchQuery, statusFilter, assigneeFilter, priorityFilter]);
 
   // Count tasks by status
@@ -70,7 +71,7 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     setStatusFilter((prev) =>
       prev.includes(status)
         ? prev.filter((s) => s !== status)
-        : [...prev, status]
+        : [...prev, status],
     );
   };
 
@@ -79,7 +80,7 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     setAssigneeFilter((prev) =>
       prev.includes(assignee)
         ? prev.filter((a) => a !== assignee)
-        : [...prev, assignee]
+        : [...prev, assignee],
     );
   };
 
@@ -88,7 +89,7 @@ export function useTaskFilter(initialTasks: Task[] | undefined) {
     setPriorityFilter((prev) =>
       prev.includes(priority)
         ? prev.filter((p) => p !== priority)
-        : [...prev, priority]
+        : [...prev, priority],
     );
   };
 

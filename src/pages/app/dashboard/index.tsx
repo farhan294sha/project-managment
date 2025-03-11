@@ -6,7 +6,7 @@ import {
   Clock,
   MoreVertical,
 } from "lucide-react";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement} from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -179,7 +179,7 @@ const tasks = {
 };
 
 // Sample data for projects
-const projects = [{ id: 1, name: "another newtask", active: true }];
+// const projects = [{ id: 1, name: "another newtask", active: true }];
 
 // Analytics data
 const analyticsData = {
@@ -212,8 +212,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const Dashboard: NextPageWithLayout = () => {
-  const [activeProject, setActiveProject] = useState(projects[0]);
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [activeProject, setActiveProject] = useState(projects[0]);
+  // const [searchQuery, setSearchQuery] = useState("");
 
   // Get current user's tasks
   const myTasks = [
@@ -223,11 +223,11 @@ const Dashboard: NextPageWithLayout = () => {
 
   // Sort by due date (most urgent first)
   const sortedTasks = [...myTasks].sort(
-    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
   );
 
   // Get priority color
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: "high" | "medium" | "low") => {
     switch (priority.toLowerCase()) {
       case "high":
         return "bg-red-50 text-red-700 border-red-200";
@@ -476,7 +476,7 @@ const Dashboard: NextPageWithLayout = () => {
                         variant="outline"
                         className={`${getPriorityColor(task.priority)} text-xs font-normal px-2 py-0.5 mr-2`}
                       >
-                        {task.priority} 
+                        {task.priority}
                       </Badge>
                       <span className="text-xs text-gray-500">
                         {getRelativeTime(task.dueDate)}

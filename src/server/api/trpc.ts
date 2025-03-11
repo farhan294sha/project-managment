@@ -14,7 +14,11 @@ import { getServerSession, type Session } from "next-auth";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { authOptions } from "~/pages/api/auth/[...nextauth]";
 import { ZodError } from "zod";
-import { PrismaClientInitializationError, PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
+import {
+  PrismaClientInitializationError,
+  PrismaClientKnownRequestError,
+  PrismaClientValidationError,
+} from "@prisma/client/runtime/library";
 
 interface CreateContextOptions {
   session: Session | null;
@@ -78,22 +82,22 @@ export const createTRPCRouter = t.router;
  * You can remove this if you don't like it, but it can help catch unwanted waterfalls by simulating
  * network latency that would occur in production but not in local development.
  */
-const timingMiddleware = t.middleware(async ({ next, path }) => {
-  const start = Date.now();
+// const timingMiddleware = t.middleware(async ({ next, path }) => {
+//   const start = Date.now();
 
-  if (t._config.isDev) {
-    // artificial delay in dev
-    const waitMs = Math.floor(Math.random() * 4000) + 100;
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
-  }
+//   if (t._config.isDev) {
+//     // artificial delay in dev
+//     const waitMs = Math.floor(Math.random() * 4000) + 100;
+//     await new Promise((resolve) => setTimeout(resolve, waitMs));
+//   }
 
-  const result = await next();
+//   const result = await next();
 
-  const end = Date.now();
-  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+//   const end = Date.now();
+//   console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
 
-  return result;
-});
+//   return result;
+// });
 
 const globalErrorHandler = t.middleware(async ({ next, path }) => {
   try {
@@ -195,7 +199,6 @@ const globalErrorHandler = t.middleware(async ({ next, path }) => {
  * the session is valid and guarantees `ctx.user` is not null.
  */
 export const protectedProcedure = t.procedure
-  .use(timingMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.session || !ctx.session.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -216,4 +219,4 @@ export const protectedProcedure = t.procedure
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const publicProcedure = t.procedure.use(timingMiddleware);
+export const publicProcedure = t.procedure.use(globalErrorHandler);

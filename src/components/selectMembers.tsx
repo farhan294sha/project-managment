@@ -7,8 +7,6 @@ import { useRouter } from "next/router";
 import { Loader2 } from "lucide-react";
 import { AssigneeMembers } from "./assignee";
 
-
-
 interface ScrollAreaDemoProps {
   onSelectionChange: (selectedMembers: AssigneeMembers[]) => void;
 }
@@ -18,9 +16,11 @@ export function ScrollAreaDemo({ onSelectionChange }: ScrollAreaDemoProps) {
   const projectId = router.asPath.split("/").slice(-1)[0] as string;
   const { data: members, isLoading } = api.project.getMembers.useQuery(
     { projectId },
-    { enabled: !!projectId }
+    { enabled: !!projectId },
   );
-  const [selectedMembers, setSelectedMembers] = React.useState<AssigneeMembers[]>([]);
+  const [selectedMembers, setSelectedMembers] = React.useState<
+    AssigneeMembers[]
+  >([]);
 
   const toggleMember = (member: AssigneeMembers) => {
     setSelectedMembers((prev) => {
@@ -50,7 +50,9 @@ export function ScrollAreaDemo({ onSelectionChange }: ScrollAreaDemoProps) {
                 <div className="flex items-center space-x-2 py-2">
                   <Checkbox
                     id={member.id}
-                    checked={selectedMembers.some((selectedMem)=> selectedMem.id === member.id)}
+                    checked={selectedMembers.some(
+                      (selectedMem) => selectedMem.id === member.id,
+                    )}
                     onCheckedChange={() => toggleMember(member)}
                   />
                   <div>

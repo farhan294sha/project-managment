@@ -9,12 +9,11 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 import { api } from "~/utils/api";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import ProjectCreateInput from "./project-create";
-import { useRouter } from "next/navigation";
 import { useActiveProjectState } from "~/store/active-project";
 
 const projectColours = [
@@ -33,7 +32,7 @@ const ProjectSidebarSection = () => {
 
   const [showInput, setShowInput] = useState(false);
 
-  const { data, setData } = useActiveProjectState()
+  const { data, setData } = useActiveProjectState();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -89,7 +88,7 @@ const ProjectSidebarSection = () => {
                         "h-2 w-2 rounded-full",
                         projectColours[
                           Math.floor(Math.random() * projectColours.length)
-                        ]
+                        ],
                       )}
                     />
                     <span className="font-medium">{project.name}</span>

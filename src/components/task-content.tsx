@@ -15,7 +15,7 @@ const TaskContent = ({
   const taskSection = useTaskSection();
   const dialogeOpen = useTaskDialoge(
     taskType === "CREATE" ? taskSection : (taskId ?? ""),
-    taskType
+    taskType,
   );
 
   switch (taskType) {

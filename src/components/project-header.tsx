@@ -16,7 +16,7 @@ const ProjectHeader = () => {
     refetch,
   } = api.project.getbyId.useQuery(
     { id: data?.projectId || "" },
-    { enabled: !!data?.projectId }
+    { enabled: !!data?.projectId },
   );
 
   if (!data?.projectId) {

@@ -8,5 +8,5 @@ export const useActiveProjectState = createGlobalState<ActiveProjectState>(
   "projectId",
   {
     projectId: null,
-  }
+  },
 );

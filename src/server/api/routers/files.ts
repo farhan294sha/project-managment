@@ -24,7 +24,7 @@ export const fileUploadRouter = createTRPCRouter({
         type: z.string(),
         size: z.number(),
         checkSum: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { type, size, checkSum } = input;

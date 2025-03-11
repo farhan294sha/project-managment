@@ -16,7 +16,7 @@ export const appRouter = createTRPCRouter({
   project: projectRouter,
   task: taskRouter,
   file: fileUploadRouter,
-  comments: commentsRouter
+  comments: commentsRouter,
 });
 
 // export type definition of API

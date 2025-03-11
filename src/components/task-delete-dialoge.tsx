@@ -18,7 +18,7 @@ export function DeleteTaskAlertDialoge({ taskId }: { taskId: string }) {
   const { data: projectId } = useActiveProjectState();
   const qureyClient = api.useUtils();
   const { data, setData } = useTaskDeleteAlert(taskId);
-  const [isDeleteButtonClicked, setIsDeleteButtonClicked] = useState(false)
+  const [isDeleteButtonClicked, setIsDeleteButtonClicked] = useState(false);
   const deleteMutation = api.task.delete.useMutation({
     async onSuccess() {
       await qureyClient.task.getTask.invalidate({
@@ -35,10 +35,9 @@ export function DeleteTaskAlertDialoge({ taskId }: { taskId: string }) {
         if (deleteMutation.isPending) {
           return;
         }
-        if(isDeleteButtonClicked){
-            setData(change);
+        if (isDeleteButtonClicked) {
+          setData(change);
         }
-        
       }}
     >
       <AlertDialogContent>
@@ -49,17 +48,19 @@ export function DeleteTaskAlertDialoge({ taskId }: { taskId: string }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={(e) => {
-            e.stopPropagation()
-            setData(false)
-          }}>
+          <AlertDialogCancel
+            onClick={(e) => {
+              e.stopPropagation();
+              setData(false);
+            }}
+          >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={deleteMutation.isPending}
             onClick={async (e) => {
               e.stopPropagation();
-              setIsDeleteButtonClicked(true)
+              setIsDeleteButtonClicked(true);
               try {
                 await deleteMutation.mutateAsync({ taskId: taskId });
               } catch (error) {

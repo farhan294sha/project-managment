@@ -28,7 +28,7 @@ export default function TaskDialoge({
   const { data: projectId } = useActiveProjectState();
   const { data, setData } = useTaskDialoge(
     taskType === "CREATE" ? taskSection : (selectedTaskId ?? ""),
-    taskType
+    taskType,
   );
   if (!data) {
     return null;

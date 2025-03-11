@@ -9,7 +9,7 @@ import { PrismaClient } from "@prisma/client";
 export async function validateUsersByEmail(
   db: PrismaClient,
   emails: string[],
-  throwOnMissing = true
+  throwOnMissing = true,
 ): Promise<{
   userIds: { id: string }[];
   missingEmails?: string[];

@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function createGlobalState<T>(
   queryKey: string,
-  initialData: T | null = null
+  initialData: T | null = null,
 ) {
   return function () {
     const queryClient = useQueryClient();

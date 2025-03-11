@@ -39,7 +39,7 @@ export function useTaskFilterContext() {
   const context = useContext(TaskFilterContext);
   if (!context) {
     throw new Error(
-      "useTaskFilterContext must be used within a TaskFilterProvider"
+      "useTaskFilterContext must be used within a TaskFilterProvider",
     );
   }
   return context;

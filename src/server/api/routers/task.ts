@@ -41,7 +41,7 @@ export const taskRouter = createTRPCRouter({
 
       const { userIds: assignedToUsers } = await validateUsersByEmail(
         ctx.db,
-        memberEmails
+        memberEmails,
       );
 
       const filteredImageId = files
@@ -103,7 +103,7 @@ export const taskRouter = createTRPCRouter({
 
       const { userIds: assignedToUsers } = await validateUsersByEmail(
         ctx.db,
-        memberEmails
+        memberEmails,
       );
 
       const updatedTask = await ctx.db.task.update({
@@ -132,7 +132,7 @@ export const taskRouter = createTRPCRouter({
       z.object({
         taskId: z.string(),
         projectId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { taskId, projectId } = input;
@@ -164,7 +164,7 @@ export const taskRouter = createTRPCRouter({
     .input(
       z.object({
         taskId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { taskId } = input;
@@ -243,7 +243,7 @@ export const taskRouter = createTRPCRouter({
 
       const { userIds: assignedToUsers } = await validateUsersByEmail(
         ctx.db,
-        memberEmails
+        memberEmails,
       );
 
       const updatedTask = await ctx.db.task.update({
@@ -282,7 +282,7 @@ export const taskRouter = createTRPCRouter({
       z.object({
         taskId: z.string(),
         status: z.nativeEnum(TaskStatus),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { taskId, status } = input;
@@ -316,7 +316,7 @@ export const taskRouter = createTRPCRouter({
     .input(
       z.object({
         taskId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { taskId } = input;
@@ -358,7 +358,7 @@ export const taskRouter = createTRPCRouter({
     .input(
       z.object({
         projectId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { projectId } = input;
@@ -419,6 +419,6 @@ export const taskRouter = createTRPCRouter({
 
     if (project.length < 0) {
       throw new TRPCError({ message: "Project not found", code: "NOT_FOUND" });
-    }    
+    }
   }),
 });

@@ -5,7 +5,6 @@ import { Button } from "../ui/button";
 import { cn } from "~/lib/utils";
 import Image from "next/image";
 
-
 const FileUploadFeild = ({
   onFileSelect,
 }: {
@@ -16,9 +15,9 @@ const FileUploadFeild = ({
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       setMyFiles([...myFiles, ...acceptedFiles]);
-      onFileSelect([...myFiles, ...acceptedFiles])
+      onFileSelect([...myFiles, ...acceptedFiles]);
     },
-    [myFiles, onFileSelect]
+    [myFiles, onFileSelect],
   );
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
@@ -37,7 +36,7 @@ const FileUploadFeild = ({
     newFiles.splice(newFiles.indexOf(file), 1);
 
     setMyFiles(newFiles);
-    onFileSelect(newFiles)
+    onFileSelect(newFiles);
   };
 
   const files = myFiles.map((file: File) => (
@@ -75,7 +74,7 @@ const FileUploadFeild = ({
       <label
         className={cn(
           "flex flex-col justify-center items-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none",
-          isDragActive && "border-primary/40"
+          isDragActive && "border-primary/40",
         )}
       >
         <span className="flex items-center space-x-2">

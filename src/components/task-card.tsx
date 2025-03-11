@@ -41,7 +41,7 @@ export function TaskCard({
     });
   const { data: openDiplayTask, setData: setOpenDiplayTask } = useTaskDialoge(
     id,
-    "DISPLAY"
+    "DISPLAY",
   );
   const { data: showUpdateTask } = useTaskDialoge(id, "UPDATE");
 
@@ -64,7 +64,7 @@ export function TaskCard({
           "transition-shadow",
           "relative",
           "group",
-          "hover:cursor-pointer"
+          "hover:cursor-pointer",
         )}
         onClick={(e) => {
           e.stopPropagation();
@@ -83,7 +83,7 @@ export function TaskCard({
             "hover:cursor-grab",
             {
               "hover:cursor-grabbing": isDragging,
-            }
+            },
           )}
         >
           <GripHorizontalIcon className="h-5 w-5" />

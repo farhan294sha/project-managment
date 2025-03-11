@@ -23,7 +23,7 @@ export default function TaskComments({ taskId }: { taskId: string }) {
           "backdrop-blur-xl",
           "rounded-2xl",
           "transition-all duration-300",
-          "hover:border-zinc-300/50 dark:hover:border-zinc-700/50"
+          "hover:border-zinc-300/50 dark:hover:border-zinc-700/50",
         )}
       >
         <div className="h-[350px] overflow-y-auto p-5 space-y-5">

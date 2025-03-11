@@ -7,7 +7,7 @@ export const commentsRouter = createTRPCRouter({
     .input(
       z.object({
         taskId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { taskId } = input;
@@ -72,7 +72,7 @@ export const commentsRouter = createTRPCRouter({
       z.object({
         taskId: z.string(),
         content: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { taskId, content } = input;
@@ -101,7 +101,7 @@ export const commentsRouter = createTRPCRouter({
       z.object({
         commentId: z.string(),
         emoji: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { commentId, emoji } = input;

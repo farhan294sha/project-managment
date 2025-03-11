@@ -17,7 +17,7 @@ const ProjectTitle = ({ projectName }: { projectName: string }) => {
             return { ...old, name: variables.title };
           }
           return old;
-        }
+        },
       );
     },
   });

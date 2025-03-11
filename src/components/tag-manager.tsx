@@ -5,7 +5,7 @@ import InputTags from "./invite-input";
 
 interface TagManagerProps {
   onChange: (tags: string[]) => void;
-  defaultTags?: Tag[]
+  defaultTags?: Tag[];
 }
 
 interface Tag {
@@ -25,7 +25,7 @@ export default function TagManager({ onChange, defaultTags }: TagManagerProps) {
     error,
   } = api.project.getTags.useQuery(
     { projectId: projectId },
-    { enabled: !!projectId }
+    { enabled: !!projectId },
   );
 
   const createTagMut = api.project.updateTags.useMutation({

@@ -66,7 +66,7 @@ export const postRouter = createTRPCRouter({
 
       const isValidPassword = await bcrypt.compare(
         input.password,
-        user.password
+        user.password,
       );
 
       if (!isValidPassword) {

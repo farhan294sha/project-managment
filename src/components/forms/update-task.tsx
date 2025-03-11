@@ -187,7 +187,7 @@ const UpdateTask = ({
                 <AssigneeDisplay
                   onChange={(emails) => form.setValue("memberEmails", emails)}
                   assignedTo={taskDetails?.assignedTo.map(
-                    (assignee) => assignee
+                    (assignee) => assignee,
                   )}
                 />
               </div>

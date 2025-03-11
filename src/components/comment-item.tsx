@@ -22,12 +22,11 @@ interface CommentItemProps {
   isTogglingReaction?: boolean;
 }
 
-const CommentItem = ({ 
-  comment, 
-  onReactionToggle, 
-  isTogglingReaction 
+const CommentItem = ({
+  comment,
+  onReactionToggle,
+  isTogglingReaction,
 }: CommentItemProps) => {
-
   // Handle emoji selection from picker
   const handleEmojiSelected = (emoji: string | null) => {
     if (emoji) {
@@ -55,7 +54,7 @@ const CommentItem = ({
             "rounded-xl",
             "ring-2 ring-white dark:ring-zinc-900",
             "transition-transform duration-200",
-            "group-hover/comment:scale-105"
+            "group-hover/comment:scale-105",
           )}
         />
         <div className="flex-1 space-y-1">
@@ -75,10 +74,8 @@ const CommentItem = ({
         {/* Emoji picker */}
         <PickEmoji
           type="reaction"
-          className={cn(
-            "absolute right-2 z-10",
-          )}
-          onChange={(data)=> handleEmojiSelected(data.emoji)}
+          className={cn("absolute right-2 z-10")}
+          onChange={(data) => handleEmojiSelected(data.emoji)}
         />
       </div>
 
@@ -98,7 +95,7 @@ const CommentItem = ({
                   ? "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
                   : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400",
                 "hover:bg-violet-200 dark:hover:bg-violet-800/30",
-                isTogglingReaction && "opacity-50 pointer-events-none"
+                isTogglingReaction && "opacity-50 pointer-events-none",
               )}
             >
               {reaction.emoji} {reaction.count}

@@ -7,7 +7,7 @@ export const projectRouter = createTRPCRouter({
     .input(
       z.object({
         title: z.string().min(1, "Cannot create with 0 char"),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const project = await ctx.db.project.create({
@@ -29,7 +29,7 @@ export const projectRouter = createTRPCRouter({
       z.object({
         projectId: z.string(),
         memberEmails: z.array(z.string().email()), // Array of user emails to add as members
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const { projectId, memberEmails } = input;
@@ -57,7 +57,7 @@ export const projectRouter = createTRPCRouter({
       if (users.length !== memberEmails.length) {
         const foundEmails = users.map((user) => user.email);
         const missingEmails = memberEmails.filter(
-          (email) => !foundEmails.includes(email)
+          (email) => !foundEmails.includes(email),
         );
         // sent email to missing emails
         throw new TRPCError({
@@ -87,7 +87,7 @@ export const projectRouter = createTRPCRouter({
       z.object({
         projectId: z.string(),
         title: z.string().min(1, "Title cannot be empty."),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { projectId, title } = input;
@@ -121,7 +121,7 @@ export const projectRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const projectId = input.id;
@@ -156,7 +156,7 @@ export const projectRouter = createTRPCRouter({
     .input(
       z.object({
         projectId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { projectId } = input;
@@ -188,7 +188,7 @@ export const projectRouter = createTRPCRouter({
     .input(
       z.object({
         projectId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { projectId } = input;
@@ -218,7 +218,7 @@ export const projectRouter = createTRPCRouter({
       z.object({
         projectId: z.string(),
         tags: z.array(z.string()),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { projectId, tags } = input;

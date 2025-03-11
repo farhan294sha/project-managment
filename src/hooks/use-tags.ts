@@ -50,8 +50,8 @@ export function useTags({
   }
 
   function removeLastTag() {
-    if (tags.length === 0){
-        return
+    if (tags.length === 0) {
+      return;
     }
     return removeTag((tags[tags.length - 1] as Tag).id);
   }

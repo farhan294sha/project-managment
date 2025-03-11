@@ -27,7 +27,7 @@ const DisplayTask = ({ taskId }: { taskId: string }) => {
     { taskId: taskId! },
     {
       enabled: !!taskId,
-    }
+    },
   );
 
   if (isLoading) {

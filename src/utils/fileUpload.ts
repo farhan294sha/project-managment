@@ -6,8 +6,8 @@ type SignUrlOutputs = RouterOutputs["file"]["getSignedUrl"];
 
 export async function uploadFiles(
   files: File[],
-  urlMutation: (inputs: SignedUrlInputs) => Promise<SignUrlOutputs>
-): Promise<{imageId: string | null}[]> {
+  urlMutation: (inputs: SignedUrlInputs) => Promise<SignUrlOutputs>,
+): Promise<{ imageId: string | null }[]> {
   const uploadPromises = files.map(async (file) => {
     try {
       const cheakSum = await computeSHA256(file);
@@ -38,7 +38,7 @@ export async function uploadFiles(
       console.log("File uploaded successfully");
       return { imageId: signedUrl.fileId };
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return { imageId: null };
     }
   });

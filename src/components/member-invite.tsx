@@ -8,12 +8,14 @@ import { z } from "zod";
 import { cn } from "~/lib/utils";
 import { useToast } from "~/hooks/use-toast";
 
-const emailsSchema = z.array(z.string().email()).min(1,"Provide at least 1 email");
+const emailsSchema = z
+  .array(z.string().email())
+  .min(1, "Provide at least 1 email");
 
 const InviteMember = ({
   project,
 }: {
-  project: RouterOutputs["project"]["getbyId"]; 
+  project: RouterOutputs["project"]["getbyId"];
 }) => {
   const [openInput, setopenInput] = useState(false);
   const [tagError, setTagError] = useState("");
@@ -85,7 +87,7 @@ const InviteMember = ({
                 "absolute top-0 right-2",
                 "text-muted-foreground",
                 "hover:text-black",
-                "cursor-pointer"
+                "cursor-pointer",
               )}
               onClick={() => setopenInput(false)}
             >
