@@ -1,5 +1,5 @@
 import { PrismaClient, TaskStatus, TaskPriority } from "@prisma/client";
-import { hash } from "bcrypt";
+import bcrypt from "bcryptjs";
 import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
@@ -8,7 +8,7 @@ async function main() {
   console.log("Starting seeding...");
 
   // Create users with hashed passwords
-  const password = await hash("Password123!", 10);
+  const password = await bcrypt.hash("Password123!", 10);
 
   // Create 10 users
   const users = [];
