@@ -55,7 +55,7 @@ export default function SignIn() {
                 <path d="M12 16V8M8 12h8" />
               </svg>
             </div>
-            <span className="text-xl font-semibold">Project managment</span>
+            <span className="text-xl font-semibold">ConnectFlow</span>
           </div>
 
           {/* Welcome Text */}

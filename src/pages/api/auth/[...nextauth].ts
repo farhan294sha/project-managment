@@ -6,6 +6,7 @@ import { db } from "~/server/db";
 import { type DefaultSession } from "next-auth";
 import { TRPCError } from "@trpc/server";
 import { trpc } from "~/server/api/root";
+import { env } from "~/env";
 // extend id in userfeild
 
 declare module "next-auth" {
@@ -50,8 +51,8 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     GithubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+      clientId: env.GITHUB_ID,
+      clientSecret: env.GITHUB_SECRET,
       httpOptions: {
         timeout: 1000 * 10, // 10 seconds timeout
       },
@@ -83,7 +84,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/auth/signin",
     newUser: "/auth/signup",

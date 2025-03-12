@@ -1,3 +1,4 @@
+import { TRPCClientError } from "@trpc/client";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
@@ -9,7 +10,6 @@ import OrSpan from "~/components/OrSpan";
 import SignupTestimonial from "~/components/SignupTestimonial";
 import { Button } from "~/components/ui/button";
 import { api } from "~/utils/api";
-import { clientZodError, isTRPCClientError } from "~/utils/erros";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -36,13 +36,8 @@ export default function SignUp() {
       }
     },
     onError(error) {
-      if (isTRPCClientError(error)) {
-        // Check if the error is a Zod error
-        const errorMessages = clientZodError(error);
-        setError(errorMessages ?? error.message); // Fallback to error.message if no Zod errors
-      } else {
-        // Handle non-TRPC errors
-        setError("An unexpected error occurred.");
+      if (error instanceof TRPCClientError) {
+        setError(error.message);
       }
     },
   });
@@ -69,7 +64,7 @@ export default function SignUp() {
                 <path d="M12 16V8M8 12h8" />
               </svg>
             </div>
-            <span className="text-xl font-semibold">Project managment</span>
+            <span className="text-xl font-semibold">ConnectFlow</span>
           </div>
 
           <div className="space-y-2">

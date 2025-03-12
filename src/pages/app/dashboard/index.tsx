@@ -6,7 +6,7 @@ import {
   Clock,
   MoreVertical,
 } from "lucide-react";
-import React, { ReactElement} from "react";
+import React, { ReactElement } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -223,11 +223,11 @@ const Dashboard: NextPageWithLayout = () => {
 
   // Sort by due date (most urgent first)
   const sortedTasks = [...myTasks].sort(
-    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
   );
 
   // Get priority color
-  const getPriorityColor = (priority: "high" | "medium" | "low") => {
+  const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
       case "high":
         return "bg-red-50 text-red-700 border-red-200";
@@ -241,7 +241,7 @@ const Dashboard: NextPageWithLayout = () => {
   };
 
   // Format date to relative time (e.g., "2 days left")
-  const getRelativeTime = (dateString) => {
+  const getRelativeTime = (dateString: string) => {
     const dueDate = new Date(dateString);
     const today = new Date();
     const diffTime = dueDate.getTime() - today.getTime();

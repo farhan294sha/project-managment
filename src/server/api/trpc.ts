@@ -186,7 +186,7 @@ const globalErrorHandler = t.middleware(async ({ next, path }) => {
 
     // Generic error response for unhandled errors
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: "CLIENT_CLOSED_REQUEST",
       message: "An unexpected error occurred",
       cause: err instanceof Error ? err : undefined,
     });

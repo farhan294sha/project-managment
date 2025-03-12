@@ -1,18 +1,12 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import crypto from "crypto";
+import { bucketName, s3Client } from "~/utils/s3ClientProvider";
+import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from "~/utils/constant";
 
-const acceptedFileTypes = [
-  "application/pdf",
-  "image/png",
-  "image/jpeg",
-  "image/jpg",
-];
-
-const maxFileSize = 1024 * 1024 * 5; // 5mb
 
 const generateFileName = (bytes = 32) =>
   crypto.randomBytes(bytes).toString("hex");
@@ -24,19 +18,19 @@ export const fileUploadRouter = createTRPCRouter({
         type: z.string(),
         size: z.number(),
         checkSum: z.string(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const { type, size, checkSum } = input;
 
-      if (!acceptedFileTypes.includes(type)) {
+      if (!ALLOWED_FILE_TYPES.includes(type)) {
         throw new TRPCError({
           message: `file type not accepted ${type}`,
           code: "BAD_REQUEST",
         });
       }
 
-      if (size > maxFileSize) {
+      if (size > MAX_FILE_SIZE) {
         throw new TRPCError({
           message: "only accept max size of 5mb ",
           code: "BAD_REQUEST",
@@ -45,7 +39,7 @@ export const fileUploadRouter = createTRPCRouter({
 
       const command = new PutObjectCommand({
         Key: generateFileName(),
-        Bucket: "project-management",
+        Bucket: bucketName,
         ContentLength: size,
         ContentType: type,
         ChecksumSHA256: checkSum,
@@ -54,17 +48,7 @@ export const fileUploadRouter = createTRPCRouter({
         },
       });
 
-      const clientS3 = new S3Client({
-        region: "ap-south-1",
-        forcePathStyle: true,
-        endpoint: "http://localhost:9001",
-        credentials: {
-          accessKeyId: "AKIAIOSFODNN7EXAMPLE", // local s3 keys
-          secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-        },
-      });
-
-      const signUrl = await getSignedUrl(clientS3, command, {
+      const signUrl = await getSignedUrl(s3Client, command, {
         expiresIn: 60,
       });
 

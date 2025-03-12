@@ -1,17 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
+import LandingPageCard from "~/components/landingPageCard";
 
 export default function LandingPage() {
+  const router = useRouter();
   return (
     <div className="flex min-h-screen flex-col bg-white">
       {/* Header */}
       <header className="container mx-auto flex h-16 items-center justify-between px-4 py-4">
         <div className="flex items-center">
           <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-full bg-purple-600">
-            <span className="text-white">K</span>
+            <span className="text-white">C</span>
           </div>
-          <span className="font-semibold text-gray-800">Klaboard</span>
+          <span className="font-semibold text-gray-800">ConnectFlow</span>
         </div>
         <nav className="hidden space-x-6 md:flex">
           <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
@@ -23,16 +27,10 @@ export default function LandingPage() {
           <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
             Pricing
           </Link>
-          <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-            Download
-          </Link>
-          <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-            Support
-          </Link>
         </nav>
         <div>
           <Link
-            href="#"
+            href="/auth/signup"
             className="rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
           >
             Sign Up
@@ -44,14 +42,17 @@ export default function LandingPage() {
       <section className="container mx-auto px-4 py-16 text-center">
         <h1 className="mb-2 text-4xl font-bold text-gray-900 md:text-5xl">
           See Why You&apos;ll Love <br />
-          <span className="text-purple-600">Working With Klaboard</span>
+          <span className="text-purple-600">Working With ConnectFlow</span>
         </h1>
         <p className="mx-auto mb-8 max-w-2xl text-gray-600">
           A powerful project management tool designed to boost your team&apos;s
           productivity and streamline your workflow with unparalleled
           efficiency.
         </p>
-        <button className="rounded-md bg-purple-600 px-6 py-3 text-white hover:bg-purple-700">
+        <button
+          className="rounded-md bg-purple-600 px-6 py-3 text-white hover:bg-purple-700"
+          onClick={() => router.push("/app/dashboard")}
+        >
           Get started free
         </button>
 
@@ -62,77 +63,36 @@ export default function LandingPage() {
             <div className="grid grid-cols-3 gap-4">
               {/* Left card */}
               <div className="col-span-1">
-                <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                  <div className="mb-2 text-xs text-gray-500">May 12, 2023</div>
-                  <div className="mb-2 text-sm font-medium">
-                    Update Employee Portal
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Assigned to John Smith
-                  </div>
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="mr-1 text-xs">2/3</span>
-                      <div className="h-1 w-16 rounded bg-gray-200">
-                        <div className="h-1 w-10 rounded bg-green-500"></div>
-                      </div>
-                    </div>
-                    <div className="flex -space-x-1">
-                      <div className="h-6 w-6 rounded-full bg-gray-300"></div>
-                      <div className="h-6 w-6 rounded-full bg-gray-400"></div>
-                    </div>
-                  </div>
-                </div>
+                <LandingPageCard
+                  photoUrl1="/person1.jpg"
+                  photoUrl2="/person2.jpg"
+                />
               </div>
 
               {/* Middle card */}
               <div className="col-span-1 mt-12">
-                <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                  <div className="mb-2 text-xs text-gray-500">May 15, 2023</div>
-                  <div className="mb-2 text-sm font-medium">
-                    Customer Data Migration
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Assigned to Team Alpha
-                  </div>
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="mr-1 text-xs">1/3</span>
-                      <div className="h-1 w-16 rounded bg-gray-200">
-                        <div className="h-1 w-5 rounded bg-green-500"></div>
-                      </div>
-                    </div>
-                    <div className="flex -space-x-1">
-                      <div className="h-6 w-6 rounded-full bg-gray-300"></div>
-                      <div className="h-6 w-6 rounded-full bg-gray-400"></div>
-                    </div>
-                  </div>
-                </div>
+                <LandingPageCard
+                  date="May 15, 2023"
+                  title="Customer Data Migration"
+                  assignedTo="Team Alpha"
+                  progress={1}
+                  total={3}
+                  photoUrl1="/person5.jpg"
+                  photoUrl2="/person6.jpg"
+                />
               </div>
 
               {/* Right card */}
               <div className="col-span-1">
-                <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                  <div className="mb-2 text-xs text-gray-500">May 20, 2023</div>
-                  <div className="mb-2 text-sm font-medium">
-                    Prepare for Quarterly Review
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Assigned to Marketing Team
-                  </div>
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="mr-1 text-xs">0/3</span>
-                      <div className="h-1 w-16 rounded bg-gray-200">
-                        <div className="h-1 w-0 rounded bg-green-500"></div>
-                      </div>
-                    </div>
-                    <div className="flex -space-x-1">
-                      <div className="h-6 w-6 rounded-full bg-gray-300"></div>
-                      <div className="h-6 w-6 rounded-full bg-gray-400"></div>
-                    </div>
-                  </div>
-                </div>
+                <LandingPageCard
+                  date="May 20, 2023"
+                  title="Prepare for Quarterly Review"
+                  assignedTo="Marketing Team"
+                  progress={0}
+                  total={3}
+                  photoUrl1="/person3.jpg"
+                  photoUrl2="/person4.jpg"
+                />
               </div>
             </div>
 
@@ -165,9 +125,9 @@ export default function LandingPage() {
               We&apos;ve Got You!
             </h2>
             <p className="mb-6 text-gray-600">
-              Klaboard provides comprehensive project management solutions that
-              help teams collaborate effectively and deliver projects on time,
-              every time.
+              ConnectFlow provides comprehensive project management solutions
+              that help teams collaborate effectively and deliver projects on
+              time, every time.
             </p>
             <div className="mb-6 flex">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -215,8 +175,8 @@ export default function LandingPage() {
           Modern Conversations
         </h2>
         <p className="mx-auto mb-12 max-w-2xl text-gray-600">
-          Klaboard brings your team&apos;s communication and project management
-          into one seamless platform.
+          ConnectFlow brings your team&apos;s communication and project
+          management into one seamless platform.
         </p>
         <button className="mb-16 rounded-md bg-gray-100 px-6 py-3 text-gray-800 hover:bg-gray-200">
           See all features
@@ -226,7 +186,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl overflow-hidden rounded-lg border border-gray-200 shadow-lg">
           <Image
             src="/placeholder.svg?height=600&width=1000"
-            alt="Klaboard Interface"
+            alt="ConnectFlowInterface"
             width={1000}
             height={600}
             className="w-full"
@@ -348,9 +308,35 @@ export default function LandingPage() {
         <div className="grid gap-8 md:grid-cols-2">
           <div className="flex flex-col items-center">
             <div className="mb-4 flex">
-              <div className="h-12 w-12 rounded-full bg-blue-400"></div>
-              <div className="-ml-4 h-12 w-12 rounded-full bg-yellow-400"></div>
-              <div className="-ml-4 h-12 w-12 rounded-full bg-green-400"></div>
+              <div className="h-12 w-12 rounded-full bg-blue-400 relative">
+                <Avatar>
+                  <AvatarImage
+                    src="/person3.jpg"
+                    alt="image"
+                    className="rounded-full"
+                  />
+                </Avatar>
+              </div>
+              <div className="-ml-4 h-12 w-12 rounded-full bg-yellow-400 relative">
+                {" "}
+                <Avatar>
+                  <AvatarImage
+                    src="/person6.jpg"
+                    alt="image"
+                    className="rounded-full"
+                  />
+                </Avatar>
+              </div>
+              <div className="-ml-4 h-12 w-12 rounded-full bg-green-400 relative">
+                {" "}
+                <Avatar>
+                  <AvatarImage
+                    src="/person4.jpg"
+                    alt="image"
+                    className="rounded-full"
+                  />
+                </Avatar>
+              </div>
             </div>
             <h3 className="mb-2 text-xl font-bold text-gray-900">
               File Sharing And <br />
@@ -383,9 +369,12 @@ export default function LandingPage() {
         </h2>
         <p className="mx-auto mb-8 max-w-2xl text-gray-600">
           Join thousands of teams who have revolutionized their work with
-          Klaboard.
+          ConnectFlow.
         </p>
-        <button className="rounded-md bg-purple-600 px-6 py-3 text-white hover:bg-purple-700">
+        <button
+          className="rounded-md bg-purple-600 px-6 py-3 text-white hover:bg-purple-700"
+          onClick={() => router.push("/app/dashboard")}
+        >
           Get Started Now
         </button>
 
@@ -714,7 +703,8 @@ export default function LandingPage() {
           {/* Copyright */}
           <div className="mt-12 border-t border-gray-200 pt-8 text-center">
             <p className="text-sm text-gray-600">
-              &copy; {new Date().getFullYear()} Klaboard. All Rights Reserved.
+              &copy; {new Date().getFullYear()} ConnectFlow. All Rights
+              Reserved.
             </p>
           </div>
         </div>

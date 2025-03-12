@@ -8,6 +8,7 @@ export default $config({
       removal: input?.stage === "production" ? "retain" : "remove",
       protect: ["production"].includes(input?.stage),
       home: "aws",
+      region: "ap-south-1",
     };
   },
   async run() {
@@ -42,7 +43,7 @@ export default $config({
     const GITHUB_SECRET = new sst.Secret("GITHUB_SECRET");
 
     new sst.aws.Nextjs("MyWeb", {
-      link: [bucket],
+      link: [bucket, DATABASE_URL],
       environment: {
         NEXTAUTH_SECRET: NEXTAUTH_SECRET.value,
         NEXTAUTH_URL: NEXTAUTH_URL.value,

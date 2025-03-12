@@ -4,7 +4,10 @@
  *
  * We also create a few inference helpers for input and output types.
  */
-import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
+import {
+  httpBatchLink,
+  loggerLink,
+} from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import { NextPageContext } from "next";
@@ -32,7 +35,7 @@ export interface SSRContext extends NextPageContext {
 
 /** A set of type-safe react-query hooks for your tRPC API. */
 export const api = createTRPCNext<AppRouter, SSRContext>({
-  config({ ctx }) {
+  config() {
     /**
      * If you want to use SSR, you need to use the server's full URL
      * @see https://trpc.io/docs/v11/ssr
@@ -48,31 +51,14 @@ export const api = createTRPCNext<AppRouter, SSRContext>({
             process.env.NODE_ENV === "development" ||
             (opts.direction === "down" && opts.result instanceof Error),
         }),
-        unstable_httpBatchStreamLink({
-          url: `${getBaseUrl()}/api/trpc`,
+        httpBatchLink({
           /**
-           * Set custom request headers on every request from tRPC
-           * @see https://trpc.io/docs/v11/ssr
-           */
-          headers() {
-            if (!ctx?.req?.headers) {
-              return {};
-            }
-            // To use SSR properly, you need to forward the client's headers to the server
-            // This is so you can pass through things like cookies when we're server-side rendering
-
-            const {
-              // If you're using Node 18 before 18.15.0, omit the "connection" header
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              connection: _connection,
-              ...headers
-            } = ctx.req.headers;
-            return headers;
-          },
-          /**
-           * @see https://trpc.io/docs/v11/data-transformers
+           * Transformer used for data de-serialization from the server.
+           *
+           * @see https://trpc.io/docs/data-transformers
            */
           transformer: superjson,
+          url: `${getBaseUrl()}/api/trpc`,
         }),
       ],
       /**
