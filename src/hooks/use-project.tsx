@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Task } from "~/components/task-card";
 import { useTaskFilterContext } from "~/context/task-filter-provider";
+import { useActiveProjectState } from "~/store/active-project";
 
 export function useProject() {
   const { filteredTasks } = useTaskFilterContext();
+  const { data } = useActiveProjectState();
 
   const [tasks, setTasks] = useState<{
     todo: Task[];
@@ -31,7 +33,7 @@ export function useProject() {
         };
       });
     }
-  }, [filteredTasks]);
+  }, [filteredTasks, data?.projectId]);
 
   return { tasks, setTasks };
 }

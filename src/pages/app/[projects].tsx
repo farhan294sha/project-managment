@@ -15,16 +15,20 @@ const Projects: NextPageWithLayout = () => {
   const [showInput, setShowInput] = useState(false);
   const projects = api.project.getAll.useQuery();
   const { data } = useActiveProjectState();
-  const projectTask = api.task.getTask.useQuery(
+  const {
+    data: projectTask,
+    isLoading,
+  } = api.task.getTask.useQuery(
     { projectId: data?.projectId || "" },
-    { enabled: !!data?.projectId },
+    { enabled: !!data?.projectId }
   );
   const { setData: isFeching } = useIsProjectTaskFecting(data?.projectId ?? "");
 
+
   useEffect(() => {
-    isFeching(projectTask.isLoading);
+    isFeching(isLoading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectTask.isLoading]);
+  }, [isLoading]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -75,7 +79,7 @@ const Projects: NextPageWithLayout = () => {
     );
   }
   return (
-    <TaskFilterProvider initialTasks={projectTask.data}>
+    <TaskFilterProvider initialTasks={projectTask}>
       <div className="overflow-auto">
         <ProjectHeader />
         <ProjectTasks />

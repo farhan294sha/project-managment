@@ -19,5 +19,5 @@ const S3ClientConfig = isDev
 export const s3Client = new S3Client(S3ClientConfig);
 
 export const bucketName = isDev
-  ? "projectmanagment"
+  ? "project-managment"
   : Resource.projectManagment.name;

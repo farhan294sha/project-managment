@@ -25,7 +25,7 @@ export default function TagManager({ onChange, defaultTags }: TagManagerProps) {
     error,
   } = api.project.getTags.useQuery(
     { projectId: projectId },
-    { enabled: !!projectId },
+    { enabled: !!projectId }
   );
 
   const createTagMut = api.project.updateTags.useMutation({
@@ -39,23 +39,28 @@ export default function TagManager({ onChange, defaultTags }: TagManagerProps) {
   });
 
   async function handleTagChange(tags: Tag[]) {
-    if (projectTags) {
-      const tagsToAdd = tags.filter((tag) => {
-        return projectTags.some((projectTag) => projectTag.id !== tag.id);
+    let tagsToAdd;
+    if (projectTags && projectTags.length > 0) {
+      tagsToAdd = tags.filter((tag) => {
+        return !projectTags.some((projectTag) => projectTag.id === tag.id);
       });
+    } else {
 
-      if (tagsToAdd.length > 0) {
-        try {
-          await createTagMut.mutateAsync({
-            projectId: projectId,
-            tags: tagsToAdd.map((tag) => tag.label),
-          });
-        } catch (error) {
-          console.error(error);
-        }
-      } else {
-        onChange(tags.map((tag) => tag.label));
+      tagsToAdd = tags;
+    }
+
+    if (tagsToAdd.length > 0) {
+      try {
+        console.log("REACHED CRETAE MUT");
+        await createTagMut.mutateAsync({
+          projectId: projectId,
+          tags: tagsToAdd.map((tag) => tag.label),
+        });
+      } catch (error) {
+        console.error(error);
       }
+    } else {
+      onChange(tags.map((tag) => tag.label));
     }
   }
 
