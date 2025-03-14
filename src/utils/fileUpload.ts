@@ -35,7 +35,6 @@ export async function uploadFiles(
         throw new Error(`HTTP error file not uploaded, ${file.name}`);
       }
 
-      console.log("File uploaded successfully");
       return { imageId: signedUrl.fileId };
     } catch (error) {
       console.log(error);

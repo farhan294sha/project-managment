@@ -33,6 +33,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "NODE_ENV": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "projectManagment": {
       "name": string
       "type": "sst.aws.Bucket"

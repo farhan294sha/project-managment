@@ -51,7 +51,6 @@ export default function TagManager({ onChange, defaultTags }: TagManagerProps) {
 
     if (tagsToAdd.length > 0) {
       try {
-        console.log("REACHED CRETAE MUT");
         await createTagMut.mutateAsync({
           projectId: projectId,
           tags: tagsToAdd.map((tag) => tag.label),

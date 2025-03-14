@@ -48,7 +48,6 @@ const InviteMember = ({
       // ... your API call
     } else {
       setTagError("Enter valid emails");
-      console.error("Invalid emails:", result.error.errors);
     }
   };
 

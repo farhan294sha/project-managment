@@ -4,6 +4,8 @@ import { cn } from "~/lib/utils";
 import PickEmoji from "./Emoji";
 import { Loader2, Send } from "lucide-react";
 import { Button } from "./ui/button";
+import { useToast } from "~/hooks/use-toast";
+import { TRPCClientError } from "@trpc/client";
 
 interface CommentFormProps {
   onSubmit: (comment: string) => Promise<void>;
@@ -12,6 +14,7 @@ interface CommentFormProps {
 
 const CommentForm = ({ onSubmit, isSubmitting }: CommentFormProps) => {
   const [comment, setComment] = useState("");
+  const { toast } = useToast();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -21,7 +24,13 @@ const CommentForm = ({ onSubmit, isSubmitting }: CommentFormProps) => {
       await onSubmit(comment);
       setComment(""); // Clear input after successful submission
     } catch (error) {
-      console.error("Failed to post comment:", error);
+      if (error instanceof TRPCClientError) {
+        toast({
+          title: "Failed to create Comment",
+          description: error.message,
+        });
+        return
+      }
     }
   };
 
@@ -45,7 +54,7 @@ const CommentForm = ({ onSubmit, isSubmitting }: CommentFormProps) => {
             "text-sm text-zinc-900 dark:text-zinc-100",
             "placeholder:text-zinc-400 dark:placeholder:text-zinc-500",
             "focus:outline-none focus:ring-2 focus:ring-violet-500/20",
-            "transition-all duration-200",
+            "transition-all duration-200"
           )}
         />
         <PickEmoji
@@ -53,7 +62,7 @@ const CommentForm = ({ onSubmit, isSubmitting }: CommentFormProps) => {
             "absolute right-2 top-1/2 -translate-y-1/2",
             "p-1.5 rounded-lg",
             "hover:bg-zinc-200/50 dark:hover:bg-zinc-700/50",
-            "transition-colors duration-200",
+            "transition-colors duration-200"
           )}
           onChange={handleEmojiChange}
         />

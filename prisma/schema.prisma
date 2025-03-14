@@ -16,7 +16,8 @@ enum TaskPriority {
 
 // Generator and datasource configurations
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -131,10 +132,12 @@ model Project {
 
 model Tag {
   id        String  @id @default(cuid())
-  name      String  @unique
+  name      String
   tasks     Task[]  @relation("TaskTags")
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([name, projectId])
 }
 
 model Comment {

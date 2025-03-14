@@ -30,7 +30,7 @@ export default $config({
       cors: {
         allowHeaders: ["*"],
         maxAge: "1 day",
-        allowOrigins: ["http://localhost:3000"],
+        allowOrigins: ["https://d3tptrrryiv8m8.cloudfront.net"],
         allowMethods: ["PUT", "GET"],
       },
     });
@@ -41,6 +41,7 @@ export default $config({
     const NEXTAUTH_URL = new sst.Secret("NEXTAUTH_URL");
     const GITHUB_ID = new sst.Secret("GITHUB_ID");
     const GITHUB_SECRET = new sst.Secret("GITHUB_SECRET");
+    const NODE_ENV = new sst.Secret("NODE_ENV");
 
     new sst.aws.Nextjs("MyWeb", {
       link: [bucket, DATABASE_URL],
@@ -51,6 +52,7 @@ export default $config({
         GITHUB_SECRET: GITHUB_SECRET.value,
         DATABASE_URL: DATABASE_URL.value,
         DIRECT_URL: DIRECT_URL.value,
+        NODE_ENV: NODE_ENV.value,
       },
     });
   },

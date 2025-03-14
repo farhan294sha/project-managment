@@ -41,7 +41,7 @@ export const taskRouter = createTRPCRouter({
 
       const { userIds: assignedToUsers } = await validateUsersByEmail(
         ctx.db,
-        memberEmails,
+        memberEmails
       );
 
       const filteredImageId = files
@@ -63,7 +63,9 @@ export const taskRouter = createTRPCRouter({
               : undefined,
           tags: {
             connectOrCreate: tags?.map((tagName) => ({
-              where: { name: tagName, projectId: projectId },
+              where: {
+                name_projectId: { name: tagName, projectId: projectId },
+              },
               create: { name: tagName, projectId: projectId },
             })),
           },
@@ -103,7 +105,7 @@ export const taskRouter = createTRPCRouter({
 
       const { userIds: assignedToUsers } = await validateUsersByEmail(
         ctx.db,
-        memberEmails,
+        memberEmails
       );
 
       const updatedTask = await ctx.db.task.update({
@@ -132,7 +134,7 @@ export const taskRouter = createTRPCRouter({
       z.object({
         taskId: z.string(),
         projectId: z.string(),
-      }),
+      })
     )
     .query(async ({ ctx, input }) => {
       const { taskId, projectId } = input;
@@ -164,7 +166,7 @@ export const taskRouter = createTRPCRouter({
     .input(
       z.object({
         taskId: z.string(),
-      }),
+      })
     )
     .query(async ({ ctx, input }) => {
       const { taskId } = input;
@@ -234,7 +236,7 @@ export const taskRouter = createTRPCRouter({
         select: { projectId: true },
       });
 
-      if (!existingTask) {
+      if (!existingTask || !existingTask.projectId) {
         throw new TRPCError({
           message: "Task not found",
           code: "NOT_FOUND",
@@ -243,7 +245,7 @@ export const taskRouter = createTRPCRouter({
 
       const { userIds: assignedToUsers } = await validateUsersByEmail(
         ctx.db,
-        memberEmails,
+        memberEmails
       );
 
       const updatedTask = await ctx.db.task.update({
@@ -258,7 +260,14 @@ export const taskRouter = createTRPCRouter({
             assignedToUsers.length > 0 ? { set: assignedToUsers } : undefined,
           tags:
             tags.length > 0
-              ? { set: tags.map((tag) => ({ name: tag })) }
+              ? {
+                  set: tags.map((tag) => ({
+                    name_projectId: {
+                      name: tag,
+                      projectId: existingTask.projectId as string,
+                    },
+                  })),
+                }
               : undefined,
         },
         include: {
@@ -282,7 +291,7 @@ export const taskRouter = createTRPCRouter({
       z.object({
         taskId: z.string(),
         status: z.nativeEnum(TaskStatus),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const { taskId, status } = input;
@@ -316,7 +325,7 @@ export const taskRouter = createTRPCRouter({
     .input(
       z.object({
         taskId: z.string(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const { taskId } = input;
@@ -358,7 +367,7 @@ export const taskRouter = createTRPCRouter({
     .input(
       z.object({
         projectId: z.string(),
-      }),
+      })
     )
     .query(async ({ ctx, input }) => {
       const { projectId } = input;
@@ -420,5 +429,55 @@ export const taskRouter = createTRPCRouter({
     if (project.length < 0) {
       throw new TRPCError({ message: "Project not found", code: "NOT_FOUND" });
     }
+  }),
+  getAllTask: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    const projects = await ctx.db.project.findMany({
+      where: {
+        members: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (projects.length === 0) {
+      throw new TRPCError({
+        message: "No projects found create new project",
+        code: "NOT_FOUND",
+      });
+    }
+
+    const tasks = await ctx.db.task.findMany({
+      where: {
+        projectId: {
+          in: projects.map((project) => project.id),
+        },
+        status: {
+          in: ["InProgress", "Todo"],
+        },
+      },
+      take: 10,
+      skip: 0,
+      select: {
+        id: true,
+        title: true,
+        priority: true,
+        deadline: true,
+        status: true,
+        assignedTo: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    return tasks;
   }),
 });

@@ -50,8 +50,15 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
-  errorFormatter({ shape }) {
-    return shape;
+  errorFormatter({ shape, error }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        zodError:
+          error.cause instanceof ZodError ? error.cause.flatten() : null,
+      },
+    };
   },
 });
 
@@ -100,10 +107,11 @@ export const createTRPCRouter = t.router;
 // });
 
 const globalErrorHandler = t.middleware(async ({ next, path }) => {
-  try {
-    return await next();
-  } catch (err) {
-    // Already a TRPC error, just rethrow
+  const response = await next();
+
+  if (!response.ok) {
+    const err = response.error.cause;
+
     if (err instanceof TRPCError) {
       throw err;
     }
@@ -191,6 +199,7 @@ const globalErrorHandler = t.middleware(async ({ next, path }) => {
       cause: err instanceof Error ? err : undefined,
     });
   }
+  return response;
 });
 /**
  * Protected (authenticated) procedure

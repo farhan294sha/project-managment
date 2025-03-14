@@ -13,7 +13,7 @@ const UserInfo = () => {
           src={session?.user?.image ?? undefined}
           alt="Profile picture"
         />
-        <AvatarFallback>{session?.user?.name}</AvatarFallback>
+        <AvatarFallback>{session?.user?.name ? session?.user?.name[0] : "A"}</AvatarFallback>
       </Avatar>
     </div>
   );

@@ -48,7 +48,6 @@ const FileUploadFeild = ({
         size={"purpleIcon"}
         onClick={(e) => {
           e.stopPropagation();
-          console.log("Button clicked");
           removeFile(file);
         }}
       >

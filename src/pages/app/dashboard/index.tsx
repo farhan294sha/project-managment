@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import React, { ReactElement } from "react";
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,13 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { NextPageWithLayout } from "~/pages/_app";
 import AppPageLayout from "..";
 import {
@@ -41,142 +33,152 @@ import {
   ResponsiveContainer,
   XAxis,
 } from "recharts";
+import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Button } from "~/components/ui/button";
 
-const tasks = {
-  todo: [
-    {
-      id: 1,
-      title: "Design new landing page",
-      priority: "High",
-      assignee: "john",
-      dueDate: "2023-03-15",
-    },
-    {
-      id: 2,
-      title: "Fix navigation bug",
-      priority: "Medium",
-      assignee: "sarah",
-      dueDate: "2023-03-12",
-    },
-    {
-      id: 3,
-      title: "Update user documentation",
-      priority: "Medium",
-      assignee: "alex",
-      dueDate: "2023-03-18",
-    },
-    {
-      id: 4,
-      title: "Create email templates",
-      priority: "Low",
-      assignee: "emma",
-      dueDate: "2023-03-20",
-    },
-    {
-      id: 5,
-      title: "Research competitors",
-      priority: "Medium",
-      assignee: "john",
-      dueDate: "2023-03-25",
-    },
-    {
-      id: 6,
-      title: "Prepare quarterly report",
-      priority: "High",
-      assignee: "current",
-      dueDate: "2023-03-10",
-    },
-  ],
-  inProgress: [
-    {
-      id: 7,
-      title: "Implement authentication",
-      priority: "High",
-      assignee: "sarah",
-      dueDate: "2023-03-14",
-    },
-    {
-      id: 8,
-      title: "Optimize database queries",
-      priority: "Medium",
-      assignee: "alex",
-      dueDate: "2023-03-16",
-    },
-    {
-      id: 9,
-      title: "Create onboarding flow",
-      priority: "Medium",
-      assignee: "current",
-      dueDate: "2023-03-11",
-    },
-    {
-      id: 10,
-      title: "Redesign dashboard UI",
-      priority: "Medium",
-      assignee: "emma",
-      dueDate: "2023-03-19",
-    },
-    {
-      id: 11,
-      title: "Integrate payment gateway",
-      priority: "High",
-      assignee: "john",
-      dueDate: "2023-03-22",
-    },
-    {
-      id: 12,
-      title: "Test mobile responsiveness",
-      priority: "Low",
-      assignee: "current",
-      dueDate: "2023-03-13",
-    },
-    {
-      id: 13,
-      title: "File test5",
-      priority: "Medium",
-      assignee: "sarah",
-      dueDate: "2023-03-17",
-    },
-  ],
-  done: [
-    {
-      id: 14,
-      title: "New task",
-      priority: "Medium",
-      assignee: "current",
-      files: 2,
-      dueDate: "2023-03-05",
-    },
-    {
-      id: 15,
-      title: "Deploy website update",
-      priority: "High",
-      assignee: "alex",
-      dueDate: "2023-03-02",
-    },
-    {
-      id: 16,
-      title: "Create API documentation",
-      priority: "Medium",
-      assignee: "emma",
-      dueDate: "2023-03-01",
-    },
-    {
-      id: 17,
-      title: "Test file",
-      priority: "Low",
-      assignee: "current",
-      dueDate: "2023-03-03",
-    },
-    {
-      id: 18,
-      title: "Update privacy policy",
-      priority: "Medium",
-      assignee: "john",
-      dueDate: "2023-03-04",
-    },
-  ],
-};
+// const tasks = {
+//   todo: [
+//     {
+//       id: 1,
+//       title: "Design new landing page",
+//       priority: "High",
+//       assignee: "john",
+//       dueDate: "2023-03-15",
+//     },
+//     {
+//       id: 2,
+//       title: "Fix navigation bug",
+//       priority: "Medium",
+//       assignee: "sarah",
+//       dueDate: "2023-03-12",
+//     },
+//     {
+//       id: 3,
+//       title: "Update user documentation",
+//       priority: "Medium",
+//       assignee: "alex",
+//       dueDate: "2023-03-18",
+//     },
+//     {
+//       id: 4,
+//       title: "Create email templates",
+//       priority: "Low",
+//       assignee: "emma",
+//       dueDate: "2023-03-20",
+//     },
+//     {
+//       id: 5,
+//       title: "Research competitors",
+//       priority: "Medium",
+//       assignee: "john",
+//       dueDate: "2023-03-25",
+//     },
+//     {
+//       id: 6,
+//       title: "Prepare quarterly report",
+//       priority: "High",
+//       assignee: "current",
+//       dueDate: "2023-03-10",
+//     },
+//   ],
+//   inProgress: [
+//     {
+//       id: 7,
+//       title: "Implement authentication",
+//       priority: "High",
+//       assignee: "sarah",
+//       dueDate: "2023-03-14",
+//     },
+//     {
+//       id: 8,
+//       title: "Optimize database queries",
+//       priority: "Medium",
+//       assignee: "alex",
+//       dueDate: "2023-03-16",
+//     },
+//     {
+//       id: 9,
+//       title: "Create onboarding flow",
+//       priority: "Medium",
+//       assignee: "current",
+//       dueDate: "2023-03-11",
+//     },
+//     {
+//       id: 10,
+//       title: "Redesign dashboard UI",
+//       priority: "Medium",
+//       assignee: "emma",
+//       dueDate: "2023-03-19",
+//     },
+//     {
+//       id: 11,
+//       title: "Integrate payment gateway",
+//       priority: "High",
+//       assignee: "john",
+//       dueDate: "2023-03-22",
+//     },
+//     {
+//       id: 12,
+//       title: "Test mobile responsiveness",
+//       priority: "Low",
+//       assignee: "current",
+//       dueDate: "2023-03-13",
+//     },
+//     {
+//       id: 13,
+//       title: "File test5",
+//       priority: "Medium",
+//       assignee: "sarah",
+//       dueDate: "2023-03-17",
+//     },
+//   ],
+//   done: [
+//     {
+//       id: 14,
+//       title: "New task",
+//       priority: "Medium",
+//       assignee: "current",
+//       files: 2,
+//       dueDate: "2023-03-05",
+//     },
+//     {
+//       id: 15,
+//       title: "Deploy website update",
+//       priority: "High",
+//       assignee: "alex",
+//       dueDate: "2023-03-02",
+//     },
+//     {
+//       id: 16,
+//       title: "Create API documentation",
+//       priority: "Medium",
+//       assignee: "emma",
+//       dueDate: "2023-03-01",
+//     },
+//     {
+//       id: 17,
+//       title: "Test file",
+//       priority: "Low",
+//       assignee: "current",
+//       dueDate: "2023-03-03",
+//     },
+//     {
+//       id: 18,
+//       title: "Update privacy policy",
+//       priority: "Medium",
+//       assignee: "john",
+//       dueDate: "2023-03-04",
+//     },
+//   ],
+// };
 
 // Sample data for projects
 // const projects = [{ id: 1, name: "another newtask", active: true }];
@@ -211,21 +213,6 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const Dashboard: NextPageWithLayout = () => {
-  // const [activeProject, setActiveProject] = useState(projects[0]);
-  // const [searchQuery, setSearchQuery] = useState("");
-
-  // Get current user's tasks
-  const myTasks = [
-    ...tasks.todo.filter((task) => task.assignee === "current"),
-    ...tasks.inProgress.filter((task) => task.assignee === "current"),
-  ];
-
-  // Sort by due date (most urgent first)
-  const sortedTasks = [...myTasks].sort(
-    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-  );
-
   // Get priority color
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
@@ -239,6 +226,22 @@ const Dashboard: NextPageWithLayout = () => {
         return "bg-gray-50 text-gray-700 border-gray-200";
     }
   };
+
+const Dashboard: NextPageWithLayout = () => {
+  const session = useSession();
+  let { data: tasks } = api.task.getAllTask.useQuery();
+
+  if (!tasks) {
+    tasks = [];
+  }
+
+  const assignedToUser = tasks.filter((task) => {
+    return task.assignedTo.some((task) => task.id === session.data?.user?.id);
+  });
+
+
+
+
 
   // Format date to relative time (e.g., "2 days left")
   const getRelativeTime = (dateString: string) => {
@@ -464,34 +467,29 @@ const Dashboard: NextPageWithLayout = () => {
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {tasks.todo.slice(0, 4).map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-start justify-between border-b pb-3 last:border-0 last:pb-0"
-                >
-                  <div>
-                    <h4 className="font-medium">{task.title}</h4>
-                    <div className="flex items-center mt-1">
-                      <Badge
-                        variant="outline"
-                        className={`${getPriorityColor(task.priority)} text-xs font-normal px-2 py-0.5 mr-2`}
-                      >
-                        {task.priority}
-                      </Badge>
-                      <span className="text-xs text-gray-500">
-                        {getRelativeTime(task.dueDate)}
-                      </span>
+              {tasks.slice(0, 4).map((task) => {
+                return (
+                  <div
+                    key={task.id}
+                    className="flex items-start justify-between border-b pb-3 last:border-0 last:pb-0"
+                  >
+                    <div>
+                      <h4 className="font-medium">{task.title}</h4>
+                      <div className="flex items-center mt-1">
+                        <Badge
+                          variant="outline"
+                          className={`${getPriorityColor(task.priority)} text-xs font-normal px-2 py-0.5 mr-2`}
+                        >
+                          {task.priority}
+                        </Badge>
+                        <span className="text-xs text-gray-500">
+                          {getRelativeTime(task.deadline?.toDateString() || "")}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50 px-3"
-                  >
-                    Start
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -504,7 +502,7 @@ const Dashboard: NextPageWithLayout = () => {
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {sortedTasks.slice(0, 4).map((task) => (
+              {assignedToUser.slice(0, 4).map((task) => (
                 <div
                   key={task.id}
                   className="flex items-start justify-between border-b pb-3 last:border-0 last:pb-0"
@@ -520,19 +518,28 @@ const Dashboard: NextPageWithLayout = () => {
                       </Badge>
                       <span
                         className={`text-xs ${
-                          getRelativeTime(task.dueDate).includes("overdue")
+                          getRelativeTime(
+                            task.deadline?.toDateString() ||
+                              new Date().toDateString()
+                          ).includes("overdue")
                             ? "text-red-500"
-                            : getRelativeTime(task.dueDate) === "Due today"
+                            : getRelativeTime(
+                                  task.deadline?.toDateString() ||
+                                    new Date().toDateString()
+                                ) === "Due today"
                               ? "text-orange-500"
                               : "text-gray-500"
                         }`}
                       >
-                        {getRelativeTime(task.dueDate)}
+                        {getRelativeTime(
+                          task.deadline?.toDateString() ||
+                            new Date().toDateString()
+                        )}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    {task.dueDate && new Date(task.dueDate) < new Date() ? (
+                    {task.deadline && new Date(task.deadline) < new Date() ? (
                       <Badge
                         variant="outline"
                         className="bg-red-50 text-red-700 border-red-200 mr-2"

@@ -31,9 +31,6 @@ export default function SignUp() {
         await router.push("/app/dashboard");
         return;
       }
-      if (result?.error) {
-        setError(result?.error);
-      }
     },
     onError(error) {
       if (error instanceof TRPCClientError) {

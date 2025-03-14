@@ -1,3 +1,4 @@
+import { TRPCClientError } from "@trpc/client";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -10,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
+import { useToast } from "~/hooks/use-toast";
 import { useActiveProjectState } from "~/store/active-project";
 import { useTaskDeleteAlert } from "~/store/task-dialoge";
 import { api } from "~/utils/api";
@@ -17,6 +19,7 @@ import { api } from "~/utils/api";
 export function DeleteTaskAlertDialoge({ taskId }: { taskId: string }) {
   const { data: projectId } = useActiveProjectState();
   const qureyClient = api.useUtils();
+  const { toast } = useToast();
   const { data, setData } = useTaskDeleteAlert(taskId);
   const [isDeleteButtonClicked, setIsDeleteButtonClicked] = useState(false);
   const deleteMutation = api.task.delete.useMutation({
@@ -64,7 +67,14 @@ export function DeleteTaskAlertDialoge({ taskId }: { taskId: string }) {
               try {
                 await deleteMutation.mutateAsync({ taskId: taskId });
               } catch (error) {
-                console.log(error);
+                if (error instanceof TRPCClientError) {
+                  toast({
+                    title: "Failed to delete task",
+                    variant: "destructive",
+                    description: error.message
+                  });
+                  return
+                }
               }
             }}
           >
