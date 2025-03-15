@@ -18,6 +18,7 @@ export default function SignIn() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [githubLoading, setGithubLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +73,11 @@ export default function SignIn() {
                 type="button"
                 variant="outline"
                 className="w-full justify-center space-x-2"
+                disabled={githubLoading}
                 onClick={async () => {
+                  setGithubLoading(true);
                   await signIn("github", { callbackUrl: "/app/dashboard" });
+                  setGithubLoading(false);
                 }}
               >
                 <Image
@@ -82,7 +86,11 @@ export default function SignIn() {
                   width="20"
                   src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/github.svg"
                 />
-                <span>Log in with Github</span>
+                {githubLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <span>Continue with Github</span>
+                )}
               </Button>
               {/* or span */}
               <OrSpan />

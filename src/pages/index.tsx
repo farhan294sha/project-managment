@@ -60,12 +60,15 @@ export default function LandingPage() {
         <div className="mx-auto mt-16 max-w-4xl">
           <div className="relative">
             {/* Task cards */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Left card */}
               <div className="col-span-1">
                 <LandingPageCard
                   photoUrl1="/person1.jpg"
                   photoUrl2="/person2.jpg"
+                  date="May 15, 2023"
+                  title="Customer Review"
+                  assignedTo="Team Beta"
                 />
               </div>
 
@@ -185,7 +188,7 @@ export default function LandingPage() {
         {/* Product Screenshot */}
         <div className="mx-auto max-w-5xl overflow-hidden rounded-lg border border-gray-200 shadow-lg">
           <Image
-            src="/placeholder.svg?height=600&width=1000"
+            src="/LandingPageSc1.png"
             alt="ConnectFlowInterface"
             width={1000}
             height={600}
@@ -282,7 +285,7 @@ export default function LandingPage() {
         <div className="mb-16">
           <div className="mx-auto max-w-5xl overflow-hidden rounded-lg border border-gray-200 shadow-lg">
             <Image
-              src="/placeholder.svg?height=500&width=1000"
+              src="/Dashboard.png"
               alt="Dashboard Customization"
               width={1000}
               height={500}

@@ -44,167 +44,29 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
 
-// const tasks = {
-//   todo: [
-//     {
-//       id: 1,
-//       title: "Design new landing page",
-//       priority: "High",
-//       assignee: "john",
-//       dueDate: "2023-03-15",
-//     },
-//     {
-//       id: 2,
-//       title: "Fix navigation bug",
-//       priority: "Medium",
-//       assignee: "sarah",
-//       dueDate: "2023-03-12",
-//     },
-//     {
-//       id: 3,
-//       title: "Update user documentation",
-//       priority: "Medium",
-//       assignee: "alex",
-//       dueDate: "2023-03-18",
-//     },
-//     {
-//       id: 4,
-//       title: "Create email templates",
-//       priority: "Low",
-//       assignee: "emma",
-//       dueDate: "2023-03-20",
-//     },
-//     {
-//       id: 5,
-//       title: "Research competitors",
-//       priority: "Medium",
-//       assignee: "john",
-//       dueDate: "2023-03-25",
-//     },
-//     {
-//       id: 6,
-//       title: "Prepare quarterly report",
-//       priority: "High",
-//       assignee: "current",
-//       dueDate: "2023-03-10",
-//     },
+// const analyticsData = {
+//   taskCompletion: 68,
+//   tasksCompleted: 23,
+//   tasksInProgress: 7,
+//   tasksPending: 6,
+//   overdueTasks: 2,
+//   weeklyProgress: [
+//     { day: "Mon", completed: 4 },
+//     { day: "Tue", completed: 7 },
+//     { day: "Wed", completed: 5 },
+//     { day: "Thu", completed: 6 },
+//     { day: "Fri", completed: 4 },
+//     { day: "Sat", completed: 2 },
+//     { day: "Sun", completed: 1 },
 //   ],
-//   inProgress: [
-//     {
-//       id: 7,
-//       title: "Implement authentication",
-//       priority: "High",
-//       assignee: "sarah",
-//       dueDate: "2023-03-14",
-//     },
-//     {
-//       id: 8,
-//       title: "Optimize database queries",
-//       priority: "Medium",
-//       assignee: "alex",
-//       dueDate: "2023-03-16",
-//     },
-//     {
-//       id: 9,
-//       title: "Create onboarding flow",
-//       priority: "Medium",
-//       assignee: "current",
-//       dueDate: "2023-03-11",
-//     },
-//     {
-//       id: 10,
-//       title: "Redesign dashboard UI",
-//       priority: "Medium",
-//       assignee: "emma",
-//       dueDate: "2023-03-19",
-//     },
-//     {
-//       id: 11,
-//       title: "Integrate payment gateway",
-//       priority: "High",
-//       assignee: "john",
-//       dueDate: "2023-03-22",
-//     },
-//     {
-//       id: 12,
-//       title: "Test mobile responsiveness",
-//       priority: "Low",
-//       assignee: "current",
-//       dueDate: "2023-03-13",
-//     },
-//     {
-//       id: 13,
-//       title: "File test5",
-//       priority: "Medium",
-//       assignee: "sarah",
-//       dueDate: "2023-03-17",
-//     },
-//   ],
-//   done: [
-//     {
-//       id: 14,
-//       title: "New task",
-//       priority: "Medium",
-//       assignee: "current",
-//       files: 2,
-//       dueDate: "2023-03-05",
-//     },
-//     {
-//       id: 15,
-//       title: "Deploy website update",
-//       priority: "High",
-//       assignee: "alex",
-//       dueDate: "2023-03-02",
-//     },
-//     {
-//       id: 16,
-//       title: "Create API documentation",
-//       priority: "Medium",
-//       assignee: "emma",
-//       dueDate: "2023-03-01",
-//     },
-//     {
-//       id: 17,
-//       title: "Test file",
-//       priority: "Low",
-//       assignee: "current",
-//       dueDate: "2023-03-03",
-//     },
-//     {
-//       id: 18,
-//       title: "Update privacy policy",
-//       priority: "Medium",
-//       assignee: "john",
-//       dueDate: "2023-03-04",
-//     },
-//   ],
+//   taskDistribution: {
+//     high: 35,
+//     medium: 45,
+//     low: 20,
+//   },
 // };
 
-// Sample data for projects
-// const projects = [{ id: 1, name: "another newtask", active: true }];
-
 // Analytics data
-const analyticsData = {
-  taskCompletion: 68,
-  tasksCompleted: 23,
-  tasksInProgress: 7,
-  tasksPending: 6,
-  overdueTasks: 2,
-  weeklyProgress: [
-    { day: "Mon", completed: 4 },
-    { day: "Tue", completed: 7 },
-    { day: "Wed", completed: 5 },
-    { day: "Thu", completed: 6 },
-    { day: "Fri", completed: 4 },
-    { day: "Sat", completed: 2 },
-    { day: "Sun", completed: 1 },
-  ],
-  taskDistribution: {
-    high: 35,
-    medium: 45,
-    low: 20,
-  },
-};
 
 const chartConfig = {
   desktop: {
@@ -213,23 +75,25 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-  // Get priority color
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case "high":
-        return "bg-red-50 text-red-700 border-red-200";
-      case "medium":
-        return "bg-yellow-50 text-yellow-700 border-yellow-200";
-      case "low":
-        return "bg-green-50 text-green-700 border-green-200";
-      default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
-    }
-  };
+// Get priority color
+const getPriorityColor = (priority: string) => {
+  switch (priority.toLowerCase()) {
+    case "high":
+      return "bg-red-50 text-red-700 border-red-200";
+    case "medium":
+      return "bg-yellow-50 text-yellow-700 border-yellow-200";
+    case "low":
+      return "bg-green-50 text-green-700 border-green-200";
+    default:
+      return "bg-gray-50 text-gray-700 border-gray-200";
+  }
+};
 
 const Dashboard: NextPageWithLayout = () => {
   const session = useSession();
   let { data: tasks } = api.task.getAllTask.useQuery();
+
+  const { data: analyticsData } = api.dashBoard.getAnalytics.useQuery();
 
   if (!tasks) {
     tasks = [];
@@ -238,10 +102,6 @@ const Dashboard: NextPageWithLayout = () => {
   const assignedToUser = tasks.filter((task) => {
     return task.assignedTo.some((task) => task.id === session.data?.user?.id);
   });
-
-
-
-
 
   // Format date to relative time (e.g., "2 days left")
   const getRelativeTime = (dateString: string) => {
@@ -277,7 +137,7 @@ const Dashboard: NextPageWithLayout = () => {
               <div>
                 <p className="text-sm text-gray-500 mb-1">Tasks Completed</p>
                 <h3 className="text-2xl font-bold">
-                  {analyticsData.tasksCompleted}
+                  {analyticsData?.tasksCompleted}
                 </h3>
                 <div className="flex items-center mt-1 text-green-600 text-xs">
                   <ArrowUpRight size={14} className="mr-1" />
@@ -297,7 +157,7 @@ const Dashboard: NextPageWithLayout = () => {
               <div>
                 <p className="text-sm text-gray-500 mb-1">Tasks In Progress</p>
                 <h3 className="text-2xl font-bold">
-                  {analyticsData.tasksInProgress}
+                  {analyticsData?.tasksInProgress}
                 </h3>
                 <div className="flex items-center mt-1 text-yellow-600 text-xs">
                   <ArrowUpRight size={14} className="mr-1" />
@@ -317,7 +177,7 @@ const Dashboard: NextPageWithLayout = () => {
               <div>
                 <p className="text-sm text-gray-500 mb-1">Tasks Pending</p>
                 <h3 className="text-2xl font-bold">
-                  {analyticsData.tasksPending}
+                  {analyticsData?.tasksPending}
                 </h3>
                 <div className="flex items-center mt-1 text-blue-600 text-xs">
                   <ArrowDownRight size={14} className="mr-1" />
@@ -337,7 +197,7 @@ const Dashboard: NextPageWithLayout = () => {
               <div>
                 <p className="text-sm text-gray-500 mb-1">Overdue Tasks</p>
                 <h3 className="text-2xl font-bold">
-                  {analyticsData.overdueTasks}
+                  {analyticsData?.overdueTasks}
                 </h3>
                 <div className="flex items-center mt-1 text-red-600 text-xs">
                   <ArrowDownRight size={14} className="mr-1" />
@@ -362,7 +222,7 @@ const Dashboard: NextPageWithLayout = () => {
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig}>
-              <BarChart accessibilityLayer data={analyticsData.weeklyProgress}>
+              <BarChart accessibilityLayer data={analyticsData?.weeklyProgress}>
                 <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="day"
@@ -415,15 +275,15 @@ const Dashboard: NextPageWithLayout = () => {
                     data={[
                       {
                         name: "High",
-                        value: analyticsData.taskDistribution.high,
+                        value: analyticsData?.taskDistribution.high,
                       },
                       {
                         name: "Medium",
-                        value: analyticsData.taskDistribution.medium,
+                        value: analyticsData?.taskDistribution.medium,
                       },
                       {
                         name: "Low",
-                        value: analyticsData.taskDistribution.low,
+                        value: analyticsData?.taskDistribution.low,
                       },
                     ]}
                     cx="50%"
@@ -445,15 +305,15 @@ const Dashboard: NextPageWithLayout = () => {
           <CardFooter className="flex items-center w-full justify-between gap-2 flex-col">
             <div className="flex items-center gap-1">
               <div className="h-3 w-3 rounded-full bg-red-500"></div>
-              <span>High ({analyticsData.taskDistribution.high})</span>
+              <span>High ({analyticsData?.taskDistribution.high})</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
-              <span>Medium {analyticsData.taskDistribution.medium}</span>
+              <span>Medium {analyticsData?.taskDistribution.medium}</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="h-3 w-3 rounded-full bg-green-500"></div>
-              <span>Low {analyticsData.taskDistribution.low}</span>
+              <span>Low {analyticsData?.taskDistribution.low}</span>
             </div>
           </CardFooter>
         </Card>
@@ -483,7 +343,13 @@ const Dashboard: NextPageWithLayout = () => {
                           {task.priority}
                         </Badge>
                         <span className="text-xs text-gray-500">
-                          {getRelativeTime(task.deadline?.toDateString() || "")}
+                          {getRelativeTime(
+                            task.deadline
+                              ? task.deadline instanceof Date
+                                ? task.deadline.toDateString()
+                                : new Date(task.deadline).toDateString()
+                              : ""
+                          )}
                         </span>
                       </div>
                     </div>
@@ -519,21 +385,30 @@ const Dashboard: NextPageWithLayout = () => {
                       <span
                         className={`text-xs ${
                           getRelativeTime(
-                            task.deadline?.toDateString() ||
-                              new Date().toDateString()
+                            task.deadline
+                              ? task.deadline instanceof Date
+                                ? task.deadline.toDateString()
+                                : new Date(task.deadline).toDateString()
+                              : ""
                           ).includes("overdue")
                             ? "text-red-500"
                             : getRelativeTime(
-                                  task.deadline?.toDateString() ||
-                                    new Date().toDateString()
+                                  task.deadline
+                                    ? task.deadline instanceof Date
+                                      ? task.deadline.toDateString()
+                                      : new Date(task.deadline).toDateString()
+                                    : ""
                                 ) === "Due today"
                               ? "text-orange-500"
                               : "text-gray-500"
                         }`}
                       >
                         {getRelativeTime(
-                          task.deadline?.toDateString() ||
-                            new Date().toDateString()
+                          task.deadline
+                            ? task.deadline instanceof Date
+                              ? task.deadline.toDateString()
+                              : new Date(task.deadline).toDateString()
+                            : ""
                         )}
                       </span>
                     </div>
